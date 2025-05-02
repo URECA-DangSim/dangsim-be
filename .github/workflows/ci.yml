@@ -1,0 +1,60 @@
+name: CI를 연습해보자.
+
+on:   # 어떤 이벤트와 브랜치에서 트리거 될건지
+  # push:
+  #   branches: [ "main" ]
+  pull_request:
+    branches: [ "main", "dev" ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+
+    steps:
+      - name: 코드 체크아웃!!!
+        uses: actions/checkout@v4
+
+      - name: JDK 17 시작!!!!!!
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Gradle 캐시 적용!!!!
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: gradle-${{ runner.os }}-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            gradle-${{ runner.os }}-
+
+      - name: Gradle 권한 부여
+        run: chmod +x ./gradlew
+
+      - name: Gradle 빌드 시작!!
+        run: ./gradlew clean build --no-daemon
+
+      - name: Gradle 테스트 시작!!
+        run: ./gradlew clean test --no-daemon
+
+      - name: Build 성공~_~
+        if: ${{ success() }}
+        uses: thollander/actions-comment-pull-request@v2
+        with:
+          message: |
+            ${{ github.event.pull_request.head.ref }} 브랜치 빌드 테스트에 성공했습니다! 🎉
+
+      - name: Build 실패ㅜ_ㅜ
+        if: ${{ failure() }}
+        uses: thollander/actions-comment-pull-request@v2
+        with:
+          message: |
+            ${{ github.event.pull_request.head.ref }} 브랜치 빌드 테스트에 실패했습니다! ❌
+            아래 로그를 확인해주세요!
+            [실행 로그](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
