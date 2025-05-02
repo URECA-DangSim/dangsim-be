@@ -6,5 +6,5 @@ import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequiredArgsConstructor
-public class PaymentController {
+public class PaymentGatewayController {
 }

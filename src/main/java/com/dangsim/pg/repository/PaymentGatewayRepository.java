@@ -6,5 +6,5 @@ import org.springframework.stereotype.Repository;
 import com.dangsim.pg.entity.PaymentGateway;
 
 @Repository
-public interface PaymentRepository extends JpaRepository<PaymentGateway, Long> {
+public interface PaymentGatewayRepository extends JpaRepository<PaymentGateway, Long> {
 }
