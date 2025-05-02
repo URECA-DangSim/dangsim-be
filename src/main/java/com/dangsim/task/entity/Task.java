@@ -1,7 +1,6 @@
 package com.dangsim.task.entity;
 
 import static jakarta.persistence.EnumType.*;
-import static java.math.BigDecimal.*;
 import static lombok.AccessLevel.*;
 
 import java.math.BigDecimal;
@@ -10,7 +9,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.hibernate.annotations.Check;
-import org.springframework.boot.context.properties.bind.DefaultValue;
 
 import com.dangsim.common.entity.BaseEntity;
 import com.dangsim.user.entity.Address;
@@ -53,7 +51,7 @@ public class Task extends BaseEntity {
 	private String content;
 
 	@NotNull
-	@Column(name = "address" , nullable = false)
+	@Column(name = "address", nullable = false)
 	private Address address;
 
 	@NotNull

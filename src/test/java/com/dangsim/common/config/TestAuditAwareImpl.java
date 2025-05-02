@@ -18,8 +18,8 @@ public class TestAuditAwareImpl implements AuditorAware<String> {
 		}
 
 		Object principal = authentication.getPrincipal();
-		if(principal instanceof User) {
-			User user = (User) principal;
+		if (principal instanceof User) {
+			User user = (User)principal;
 			return Optional.of(user.getNickname());
 		}
 
