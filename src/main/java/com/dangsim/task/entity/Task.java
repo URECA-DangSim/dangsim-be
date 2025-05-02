@@ -1,5 +1,6 @@
 package com.dangsim.task.entity;
 
+import static jakarta.persistence.EnumType.*;
 import static java.math.BigDecimal.*;
 import static lombok.AccessLevel.*;
 
@@ -17,6 +18,7 @@ import com.dangsim.user.entity.Address;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -62,8 +64,9 @@ public class Task extends BaseEntity {
 	@Column(name = "reward", nullable = false)
 	private BigDecimal reward;
 
+	@Enumerated(STRING)
 	@NotNull
-	@Column(name = "reward", nullable = false)
+	@Column(name = "status", nullable = false)
 	private TaskStatus status;
 
 	@OneToMany(mappedBy = "task", cascade = CascadeType.ALL)
