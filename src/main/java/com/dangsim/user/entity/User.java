@@ -15,6 +15,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.Size;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -30,10 +31,12 @@ public class User extends BaseEntity {
 	@Column(name = "user_id")
 	private Long id;
 
-	@Column(name = "nickname")
+	@Size(max = 12)
+	@Column(name = "nickname", length = 12)
 	private String nickname;
 
-	@Column(name = "profile_image")
+	@Size(max = 255)
+	@Column(name = "profile_image", length = 255)
 	private String profileImage;
 
 	@Embedded

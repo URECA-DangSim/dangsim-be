@@ -14,12 +14,15 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
+@Table(name = "task_image")
 @Getter
 @NoArgsConstructor(access = PROTECTED)
 public class TaskImage extends BaseEntity {
@@ -29,8 +32,9 @@ public class TaskImage extends BaseEntity {
 	@Column(name = "task_image_id")
 	private Long id;
 
+	@Size(max = 255)
 	@NotNull
-	@Column(name = "image_url", nullable = false)
+	@Column(name = "image_url", length = 255, nullable = false)
 	private String imageUrl;
 
 	@ManyToOne(fetch = LAZY)

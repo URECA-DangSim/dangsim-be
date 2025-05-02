@@ -19,6 +19,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -34,10 +35,12 @@ public class Auth extends BaseEntity {
 	@Column(name = "auth_id")
 	private Long id;
 
+	@NotNull
 	@Enumerated(STRING)
 	@Column(name = "provider", nullable = false)
 	private AuthProvider provider;
 
+	@NotNull
 	@Column(name = "provider_id", nullable = false, unique = true)
 	private String providerId;
 
