@@ -15,7 +15,7 @@ import jakarta.persistence.EntityManager;
 @DataJpaTest(includeFilters = @ComponentScan.Filter(Repository.class))
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @Import({TestJpaAuditingConfig.class, QueryDslConfig.class})
-public abstract class DataJapSupport {
+public abstract class DataJpaSupport {
 
 	@Autowired
 	protected EntityManager em;
