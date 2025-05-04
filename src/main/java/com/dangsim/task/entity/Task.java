@@ -84,13 +84,15 @@ public class Task extends BaseEntity {
 
 	@Builder(access = PRIVATE)
 	private Task(String title, String content, Address address, LocalDateTime deadline,
-		BigDecimal reward, TaskStatus status) {
+		BigDecimal reward, TaskStatus status, User user, List<TaskImage> images) {
 		this.title = title;
 		this.content = content;
 		this.address = address;
 		this.deadline = deadline;
 		this.reward = reward;
 		this.status = status;
+		this.user = user;
+		updateTaskImage(images);
 	}
 
 	private void updateTaskImage(List<TaskImage> images) {
@@ -98,6 +100,20 @@ public class Task extends BaseEntity {
 			this.images.add(image);
 			image.addTask(this);
 		});
+	}
+
+	public static Task of(String title, String content, Address address, LocalDateTime deadline,
+		BigDecimal reward, TaskStatus status, User user, List<TaskImage> taskImages) {
+		return Task.builder()
+			.title(title)
+			.content(content)
+			.address(address)
+			.deadline(deadline)
+			.reward(reward)
+			.status(status)
+			.user(user)
+			.images(taskImages)
+			.build();
 	}
 }
 
