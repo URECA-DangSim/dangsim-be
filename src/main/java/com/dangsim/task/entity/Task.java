@@ -1,6 +1,8 @@
 package com.dangsim.task.entity;
 
+import static jakarta.persistence.ConstraintMode.*;
 import static jakarta.persistence.EnumType.*;
+import static jakarta.persistence.FetchType.*;
 import static lombok.AccessLevel.*;
 
 import java.math.BigDecimal;
@@ -12,14 +14,18 @@ import org.hibernate.annotations.Check;
 
 import com.dangsim.common.entity.BaseEntity;
 import com.dangsim.user.entity.Address;
+import com.dangsim.user.entity.User;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.ForeignKey;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
@@ -66,6 +72,12 @@ public class Task extends BaseEntity {
 	@NotNull
 	@Column(name = "status", nullable = false)
 	private TaskStatus status;
+
+	@ManyToOne(fetch = LAZY)
+	@JoinColumn(name = "user_id",
+		nullable = false,
+		foreignKey = @ForeignKey(NO_CONSTRAINT))
+	private User user;
 
 	@OneToMany(mappedBy = "task", cascade = CascadeType.ALL)
 	private List<TaskImage> images = new ArrayList<>();
