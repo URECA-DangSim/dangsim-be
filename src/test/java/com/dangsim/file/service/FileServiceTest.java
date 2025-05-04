@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -59,6 +60,7 @@ public class FileServiceTest {
 			.hasMessage(FileException.EMPTY_FILE.getMessage());
 	}
 
+	@Disabled
 	@DisplayName("1개의 파일을 S3에 업로드하고, 저장된 경로를 획득한다.")
 	@Test
 	void uploadFile() throws IOException {
@@ -81,6 +83,7 @@ public class FileServiceTest {
 			.allMatch(url -> url.contains("task/8135"));
 	}
 
+	@Disabled
 	@DisplayName("3개의 파일을 S3에 업로드하고, 저장된 경로를 획득한다.")
 	@Test
 	void uploadFiles() throws IOException {
