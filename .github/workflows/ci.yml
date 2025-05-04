@@ -1,4 +1,4 @@
-name: CI를 연습해보자.
+name: DangSim_CI
 
 on: # 어떤 이벤트와 브랜치에서 트리거 될건지
   # push:
