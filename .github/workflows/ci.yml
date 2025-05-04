@@ -1,6 +1,6 @@
-name: CI를 연습해보자.
+name: DangSim_CI
 
-on:   # 어떤 이벤트와 브랜치에서 트리거 될건지
+on: # 어떤 이벤트와 브랜치에서 트리거 될건지
   # push:
   #   branches: [ "main" ]
   pull_request:
@@ -23,6 +23,11 @@ jobs:
         with:
           java-version: '17'
           distribution: 'temurin'
+
+      - name: test 경로 application.yml 파일 생성
+        run: |
+          mkdir -p ./src/test/resources
+          echo "${{ secrets.APPLICATION_TEST }}" > ./src/test/resources/application.yml
 
       - name: Gradle 캐시 적용!!!!
         uses: actions/cache@v4
