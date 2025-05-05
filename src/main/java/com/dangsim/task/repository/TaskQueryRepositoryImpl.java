@@ -28,7 +28,7 @@ public class TaskQueryRepositoryImpl implements TaskQueryRepository {
 		List<TaskSimpleResponseDto> items = queryFactory
 			.select(new QTaskSimpleResponseDto(task))
 			.from(task)
-			.where(task.createdAt.lt(DateTimeFormatUtils.parseDate(cursor)))
+			.where(task.createdAt.lt(DateTimeFormatUtils.parseDateTime(cursor)))
 			.orderBy(task.createdAt.desc())
 			.limit(size + 1)
 			.fetch();

@@ -142,7 +142,7 @@ public class TaskServiceTest {
 		// given
 		final String title = "제목입니다.";
 		final String content = "내용입니다";
-		final String deadline = DateTimeFormatUtils.formatDate(LocalDateTime.now().plusHours(3));
+		final String deadline = DateTimeFormatUtils.formatDateTime(LocalDateTime.now().plusHours(3));
 		final int reward = 1000;
 		final String address = "서울특별시 강남구 대치2동";
 		List<String> imageUrls = Collections.EMPTY_LIST;
@@ -174,7 +174,7 @@ public class TaskServiceTest {
 		// given
 		final String title = "제목입니다.";
 		final String content = "내용입니다";
-		final String deadline = DateTimeFormatUtils.formatDate(LocalDateTime.now().minusMinutes(15));
+		final String deadline = DateTimeFormatUtils.formatDateTime(LocalDateTime.now().minusMinutes(15));
 		final int reward = 1000;
 		final String address = "서울특별시 강남구 대치2동";
 		List<String> imageUrls = Collections.EMPTY_LIST;

@@ -17,7 +17,7 @@ public class DateTimeFormatUtils {
 	private static final String DATE_PATTERN = "yy.MM.dd HH:mm";
 	private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern(DATE_PATTERN);
 
-	public static String formatDate(LocalDateTime now) {
+	public static String formatDateTime(LocalDateTime now) {
 		if (Objects.isNull(now)) {
 			throw new BaseException(UtilsErrorCode.DATE_TIME_IS_NULL);
 		}
@@ -25,7 +25,7 @@ public class DateTimeFormatUtils {
 		return now.format(formatter);
 	}
 
-	public static LocalDateTime parseDate(String deadline) {
+	public static LocalDateTime parseDateTime(String deadline) {
 		if (Objects.isNull(deadline) || deadline.isBlank()) {
 			throw new BaseException(UtilsErrorCode.DATE_TIME_IS_NULL);
 		}

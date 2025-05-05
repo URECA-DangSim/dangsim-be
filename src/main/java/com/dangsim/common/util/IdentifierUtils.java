@@ -18,7 +18,7 @@ public class IdentifierUtils {
 			.replace("-", "")
 			.substring(0, 20);
 
-		String datePart = DateTimeFormatUtils.formatDate(now);
+		String datePart = DateTimeFormatUtils.formatDateTime(now);
 
 		sb.append(taskId)
 			.append("-")

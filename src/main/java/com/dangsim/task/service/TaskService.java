@@ -53,7 +53,7 @@ public class TaskService {
 	}
 
 	private void validateIsEnoughDeadLine(String deadline, LocalDateTime now) {
-		LocalDateTime formattedDeadline = DateTimeFormatUtils.parseDate(deadline);
+		LocalDateTime formattedDeadline = DateTimeFormatUtils.parseDateTime(deadline);
 
 		if (formattedDeadline.isBefore(now.plusMinutes(30))) {
 			throw new BaseException(TaskErrorCode.NOT_ENOUGH_DEADLINE);
@@ -63,7 +63,7 @@ public class TaskService {
 	@Transactional(readOnly = true)
 	public CursorPageResponse<TaskSimpleResponseDto> getTasksByCursor(String cursor, int size) {
 		if (Objects.isNull(cursor) || cursor.isBlank()) {
-			cursor = DateTimeFormatUtils.formatDate(LocalDateTime.now());
+			cursor = DateTimeFormatUtils.formatDateTime(LocalDateTime.now());
 		}
 
 		return taskRepository.findTasksByCursor(cursor, size);
