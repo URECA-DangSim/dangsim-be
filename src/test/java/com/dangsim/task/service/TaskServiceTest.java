@@ -6,6 +6,8 @@ import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.*;
 
 import java.math.BigDecimal;
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 import org.junit.jupiter.api.DisplayName;
@@ -19,7 +21,9 @@ import org.springframework.test.util.ReflectionTestUtils;
 import com.dangsim.common.exception.runtime.BaseException;
 import com.dangsim.common.fixture.TaskFixture;
 import com.dangsim.common.fixture.UserFixture;
+import com.dangsim.task.dto.request.TaskRequestDto;
 import com.dangsim.task.dto.response.TaskDetailsResponseDto;
+import com.dangsim.task.dto.response.TaskResponseDto;
 import com.dangsim.task.entity.Task;
 import com.dangsim.task.exception.TaskErrorCode;
 import com.dangsim.task.repository.TaskRepository;
@@ -127,6 +131,38 @@ public class TaskServiceTest {
 			() -> assertThat(responseDto.title()).isEqualTo(task.getTitle()),
 			() -> assertThat(responseDto.content()).isEqualTo(task.getContent()),
 			() -> assertThat(responseDto.isMyTask()).isFalse()
+		);
+	}
+
+	@DisplayName("심부름을 저장한다.")
+	@Test
+	void createTask() {
+		// given
+		final String title = "제목입니다.";
+		final String content = "내용입니다";
+		final String deadline = "25.01.01 15:00";
+		final int reward = 1000;
+		final String address = "서울특별시 강남구 대치2동";
+		List<String> imageUrls = Collections.EMPTY_LIST;
+
+		TaskRequestDto requestDto = new TaskRequestDto(title, content, deadline, reward, address, imageUrls);
+
+		User user = UserFixture.user(Role.USER, BigDecimal.ONE);
+		ReflectionTestUtils.setField(user, "id", 1L);
+
+		Task task = TaskFixture.task(title, content, user);
+		ReflectionTestUtils.setField(task, "id", 1L);
+
+		given(taskRepository.save(any(Task.class))).willReturn(task);
+
+		// when
+		TaskResponseDto responseDto = taskService.createTask(requestDto, user);
+
+		// then
+		assertAll(
+			() -> assertThat(responseDto.taskId()).isEqualTo(task.getId()),
+			() -> assertTrue(responseDto.merchantUid().startsWith(task.getId().toString())),
+			() -> assertThat(responseDto.result()).isTrue()
 		);
 	}
 
