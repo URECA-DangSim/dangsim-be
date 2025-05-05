@@ -6,6 +6,7 @@ import java.util.Objects;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.dangsim.common.CursorPageResponse;
 import com.dangsim.common.exception.runtime.BaseException;
 import com.dangsim.common.util.DateTimeFormatUtils;
 import com.dangsim.common.util.IdentifierUtils;
@@ -13,6 +14,7 @@ import com.dangsim.task.dto.TaskMapper;
 import com.dangsim.task.dto.request.TaskRequestDto;
 import com.dangsim.task.dto.response.TaskDetailsResponseDto;
 import com.dangsim.task.dto.response.TaskResponseDto;
+import com.dangsim.task.dto.response.TaskSimpleResponseDto;
 import com.dangsim.task.entity.Task;
 import com.dangsim.task.exception.TaskErrorCode;
 import com.dangsim.task.repository.TaskRepository;
@@ -56,5 +58,14 @@ public class TaskService {
 		if (formattedDeadline.isBefore(now.plusMinutes(30))) {
 			throw new BaseException(TaskErrorCode.NOT_ENOUGH_DEADLINE);
 		}
+	}
+
+	@Transactional(readOnly = true)
+	public CursorPageResponse<TaskSimpleResponseDto> getTasksByCursor(String cursor, int size) {
+		if (Objects.isNull(cursor) || cursor.isBlank()) {
+			cursor = DateTimeFormatUtils.formatDate(LocalDateTime.now());
+		}
+
+		return taskRepository.findTasksByCursor(cursor, size);
 	}
 }
