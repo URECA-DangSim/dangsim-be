@@ -6,5 +6,5 @@ import org.springframework.stereotype.Repository;
 import com.dangsim.task.entity.Task;
 
 @Repository
-public interface TaskRepository extends JpaRepository<Task, Long> {
+public interface TaskRepository extends JpaRepository<Task, Long>, TaskQueryRepository {
 }

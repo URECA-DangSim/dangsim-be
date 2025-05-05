@@ -1,5 +1,7 @@
 package com.dangsim.task.entity;
 
+import java.util.Objects;
+
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
@@ -12,4 +14,12 @@ public enum TaskStatus {
 	TASK_COMPLETE("진행완료");
 
 	private final String status;
+
+	public static boolean isMatching(TaskStatus status) {
+		if (Objects.equals(TaskStatus.TASK_NOT_ASSIGNED, status)) {
+			return false;
+		}
+
+		return true;
+	}
 }

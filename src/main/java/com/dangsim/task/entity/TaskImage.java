@@ -50,4 +50,8 @@ public class TaskImage extends BaseEntity {
 	public void addTask(Task task) {
 		this.task = task;
 	}
+
+	public static TaskImage from(String imageUrl) {
+		return new TaskImage(imageUrl, null);
+	}
 }
