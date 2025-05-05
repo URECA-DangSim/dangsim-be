@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.dangsim.common.exception.runtime.BaseException;
+import com.dangsim.common.util.DateTimeFormatUtils;
 import com.dangsim.common.util.IdentifierUtils;
 import com.dangsim.task.dto.TaskMapper;
 import com.dangsim.task.dto.request.TaskRequestDto;
@@ -39,11 +40,21 @@ public class TaskService {
 
 	@Transactional
 	public TaskResponseDto createTask(TaskRequestDto requestDto, User user) {
+		validateIsEnoughDeadLine(requestDto.deadline(), LocalDateTime.now());
+
 		Task task = TaskMapper.toTask(requestDto, user);
 		Task saveTask = taskRepository.save(task);
 
 		String merchantUid = IdentifierUtils.generateMerchantUid(saveTask.getId(), LocalDateTime.now());
 
 		return TaskMapper.toTaskResponseDto(saveTask, merchantUid);
+	}
+
+	private void validateIsEnoughDeadLine(String deadline, LocalDateTime now) {
+		LocalDateTime formattedDeadline = DateTimeFormatUtils.parseDate(deadline);
+
+		if (formattedDeadline.isBefore(now.plusMinutes(30))) {
+			throw new BaseException(TaskErrorCode.NOT_ENOUGH_DEADLINE);
+		}
 	}
 }
