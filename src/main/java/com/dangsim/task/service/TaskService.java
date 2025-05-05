@@ -12,10 +12,12 @@ import com.dangsim.common.util.DateTimeFormatUtils;
 import com.dangsim.common.util.IdentifierUtils;
 import com.dangsim.task.dto.TaskMapper;
 import com.dangsim.task.dto.request.TaskRequestDto;
+import com.dangsim.task.dto.response.TaskDeleteResponse;
 import com.dangsim.task.dto.response.TaskDetailsResponseDto;
 import com.dangsim.task.dto.response.TaskResponseDto;
 import com.dangsim.task.dto.response.TaskSimpleResponseDto;
 import com.dangsim.task.entity.Task;
+import com.dangsim.task.entity.TaskStatus;
 import com.dangsim.task.exception.TaskErrorCode;
 import com.dangsim.task.repository.TaskRepository;
 import com.dangsim.user.entity.User;
@@ -30,12 +32,9 @@ public class TaskService {
 
 	@Transactional(readOnly = true)
 	public TaskDetailsResponseDto getTaskById(Long taskId, User user) {
-		Task findTask = taskRepository.findById(taskId).orElseThrow(
-			() -> new BaseException(TaskErrorCode.NOT_FOUND_TASK)
-		);
+		Task findTask = getTaskById(taskId);
 
-		User requester = findTask.getUser();
-		boolean isMyTask = Objects.equals(requester, user);
+		boolean isMyTask = isTaskOwner(findTask, user);
 
 		return TaskMapper.toTaskDetailsResponseDto(findTask, isMyTask);
 	}
@@ -67,5 +66,36 @@ public class TaskService {
 		}
 
 		return taskRepository.findTasksByCursor(cursor, size);
+	}
+
+	@Transactional
+	public TaskDeleteResponse deleteTaskById(Long taskId, User user) {
+		Task findTask = getTaskById(taskId);
+
+		if (!isTaskOwner(findTask, user)) {
+			throw new BaseException(TaskErrorCode.NOT_TASK_OWNER);
+		}
+
+		validateNotAssigned(findTask);
+
+		taskRepository.deleteById(taskId);
+
+		return new TaskDeleteResponse(true);
+	}
+
+	private void validateNotAssigned(Task task) {
+		if (TaskStatus.isMatching(task.getStatus())) {
+			throw new BaseException(TaskErrorCode.IS_MATCHING);
+		}
+	}
+
+	private boolean isTaskOwner(Task task, User user) {
+		return Objects.equals(task.getUser(), user);
+	}
+
+	private Task getTaskById(Long taskId) {
+		return taskRepository.findById(taskId).orElseThrow(
+			() -> new BaseException(TaskErrorCode.NOT_FOUND_TASK)
+		);
 	}
 }
