@@ -41,7 +41,7 @@ public class TaskService {
 
 	@Transactional
 	public TaskResponseDto createTask(TaskRequestDto requestDto, User user) {
-		validateIsEnoughDeadLine(requestDto.deadline(), LocalDateTime.now());
+		validateEnoughDeadLine(requestDto.deadline(), LocalDateTime.now());
 
 		Task task = TaskMapper.toTask(requestDto, user);
 		Task saveTask = taskRepository.save(task);
@@ -51,7 +51,7 @@ public class TaskService {
 		return TaskMapper.toTaskResponseDto(saveTask, merchantUid);
 	}
 
-	private void validateIsEnoughDeadLine(String deadline, LocalDateTime now) {
+	private void validateEnoughDeadLine(String deadline, LocalDateTime now) {
 		LocalDateTime formattedDeadline = DateTimeFormatUtils.parseDateTime(deadline);
 
 		if (formattedDeadline.isBefore(now.plusMinutes(30))) {
