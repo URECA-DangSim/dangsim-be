@@ -18,7 +18,7 @@ public class IdentifierUtilsTest {
 	@Test
 	void generateMerchantUidContainTaskIdAndDate() {
 		// given
-		final String DATE_PATTERN = "yyMMdd";
+		final String DATE_PATTERN = "yy.MM.dd HH:mm";
 		final Long taskId = 15L;
 		LocalDateTime now = LocalDateTime.now();
 
