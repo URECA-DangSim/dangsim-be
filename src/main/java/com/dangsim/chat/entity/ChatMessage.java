@@ -42,4 +42,13 @@ public class ChatMessage extends BaseEntity {
 	@NotNull
 	@Column(name = "chat_room_id", nullable = false)
 	private Long chatRoomId;
+
+	public static ChatMessage of(Long chatRoomId, Long userId, String message) {
+		ChatMessage chatMessage = new ChatMessage();
+		chatMessage.chatRoomId = chatRoomId;
+		chatMessage.userId = userId;
+		chatMessage.message = message;
+		chatMessage.isRead = false;
+		return chatMessage;
+	}
 }
