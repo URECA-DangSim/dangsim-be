@@ -26,10 +26,12 @@ import com.dangsim.common.fixture.TaskFixture;
 import com.dangsim.common.fixture.UserFixture;
 import com.dangsim.common.util.DateTimeFormatUtils;
 import com.dangsim.task.dto.request.TaskRequestDto;
+import com.dangsim.task.dto.response.TaskDeleteResponse;
 import com.dangsim.task.dto.response.TaskDetailsResponseDto;
 import com.dangsim.task.dto.response.TaskResponseDto;
 import com.dangsim.task.dto.response.TaskSimpleResponseDto;
 import com.dangsim.task.entity.Task;
+import com.dangsim.task.entity.TaskStatus;
 import com.dangsim.task.exception.TaskErrorCode;
 import com.dangsim.task.repository.TaskRepository;
 import com.dangsim.user.entity.Role;
@@ -193,7 +195,7 @@ public class TaskServiceTest {
 		// when  // then
 		assertThatThrownBy(() -> taskService.createTask(requestDto, user))
 			.isInstanceOf(BaseException.class)
-			.hasMessage("충분한 마감기한이 아닙니다.");
+			.hasMessage(TaskErrorCode.NOT_ENOUGH_DEADLINE.getMessage());
 	}
 
 	@DisplayName("커서가 없으면 현재 시각으로 포맷된 커서를 사용하여 조회한다.")
@@ -259,5 +261,95 @@ public class TaskServiceTest {
 		// then
 		assertThat(response).isSameAs(expected);
 		verify(taskRepository).findTasksByCursor(cursor, size);
+	}
+
+	@DisplayName("요청자가 해당 심부름에 작성자가 아니라면 예외가 발생한다.")
+	@Test
+	void throwNotTaskOwnerExceptionWhenRequesterIsNotOwnerOfTask() {
+		// given
+		final String title = "제목입니다.";
+		final String content = "내용입니다.";
+
+		User requester = UserFixture.user(Role.USER, BigDecimal.ZERO);
+		ReflectionTestUtils.setField(requester, "id", 1L);
+		User other = UserFixture.user(Role.USER, BigDecimal.ZERO);
+		ReflectionTestUtils.setField(requester, "id", 2L);
+
+		Task task = TaskFixture.task(title, content, other);
+		ReflectionTestUtils.setField(task, "id", 1L);
+
+		given(taskRepository.findById(any(Long.class))).willReturn(Optional.of(task));
+
+		// when		// then
+		assertThatThrownBy(() -> taskService.deleteTaskById(task.getId(), requester))
+			.isInstanceOf(BaseException.class)
+			.hasMessage(TaskErrorCode.NOT_TASK_OWNER.getMessage());
+	}
+
+	@DisplayName("해당 심부름이 진행 상태라면 예외가 발생한다.")
+	@Test
+	void throwIsMatchingExceptionWhenTaskStatusIsProgress() {
+		// given
+		final String title = "제목입니다.";
+		final String content = "내용입니다.";
+
+		User requester = UserFixture.user(Role.USER, BigDecimal.ZERO);
+		ReflectionTestUtils.setField(requester, "id", 1L);
+
+		Task task = TaskFixture.task(title, content, requester);
+		ReflectionTestUtils.setField(task, "id", 1L);
+		ReflectionTestUtils.setField(task, "status", TaskStatus.TASK_IN_PROGRESS);
+
+		given(taskRepository.findById(any(Long.class))).willReturn(Optional.of(task));
+
+		// when		// then
+		assertThatThrownBy(() -> taskService.deleteTaskById(task.getId(), requester))
+			.isInstanceOf(BaseException.class)
+			.hasMessage(TaskErrorCode.IS_MATCHING.getMessage());
+	}
+
+	@DisplayName("해당 심부름이 완료 상태라면 예외가 발생한다.")
+	@Test
+	void throwIsMatchingExceptionWhenTaskStatusIsComplete() {
+		// given
+		final String title = "제목입니다.";
+		final String content = "내용입니다.";
+
+		User requester = UserFixture.user(Role.USER, BigDecimal.ZERO);
+		ReflectionTestUtils.setField(requester, "id", 1L);
+
+		Task task = TaskFixture.task(title, content, requester);
+		ReflectionTestUtils.setField(task, "id", 1L);
+		ReflectionTestUtils.setField(task, "status", TaskStatus.TASK_COMPLETE);
+
+		given(taskRepository.findById(any(Long.class))).willReturn(Optional.of(task));
+
+		// when		// then
+		assertThatThrownBy(() -> taskService.deleteTaskById(task.getId(), requester))
+			.isInstanceOf(BaseException.class)
+			.hasMessage(TaskErrorCode.IS_MATCHING.getMessage());
+	}
+
+	@DisplayName("미매칭된 자신의 심부름 요청을 삭제할 수 있다.")
+	@Test
+	void deleteTaskByOwnerAndNotMatched() {
+		// given
+		final String title = "제목입니다.";
+		final String content = "내용입니다.";
+
+		User requester = UserFixture.user(Role.USER, BigDecimal.ZERO);
+		ReflectionTestUtils.setField(requester, "id", 1L);
+
+		Task task = TaskFixture.task(title, content, requester);
+		ReflectionTestUtils.setField(task, "id", 1L);
+		ReflectionTestUtils.setField(task, "status", TaskStatus.TASK_NOT_ASSIGNED);
+
+		given(taskRepository.findById(any(Long.class))).willReturn(Optional.of(task));
+
+		// when
+		TaskDeleteResponse responseDto = taskService.deleteTaskById(task.getId(), requester);
+
+		// then
+		assertTrue(responseDto.result());
 	}
 }
