@@ -14,11 +14,13 @@ import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 
+import com.dangsim.common.CursorPageResponse;
 import com.dangsim.common.exception.runtime.BaseException;
 import com.dangsim.common.fixture.TaskFixture;
 import com.dangsim.common.fixture.UserFixture;
@@ -26,6 +28,7 @@ import com.dangsim.common.util.DateTimeFormatUtils;
 import com.dangsim.task.dto.request.TaskRequestDto;
 import com.dangsim.task.dto.response.TaskDetailsResponseDto;
 import com.dangsim.task.dto.response.TaskResponseDto;
+import com.dangsim.task.dto.response.TaskSimpleResponseDto;
 import com.dangsim.task.entity.Task;
 import com.dangsim.task.exception.TaskErrorCode;
 import com.dangsim.task.repository.TaskRepository;
@@ -193,4 +196,68 @@ public class TaskServiceTest {
 			.hasMessage("충분한 마감기한이 아닙니다.");
 	}
 
+	@DisplayName("커서가 없으면 현재 시각으로 포맷된 커서를 사용하여 조회한다.")
+	@Test
+	void getTasksByCursor_usesFormattedCurrentTimeWhenCursorIsNull() {
+		// given
+		int size = 3;
+		CursorPageResponse<TaskSimpleResponseDto> expected =
+			new CursorPageResponse<>(List.of(), null, false);
+		given(taskRepository.findTasksByCursor(anyString(), eq(size))).willReturn(expected);
+
+		// when
+		CursorPageResponse<TaskSimpleResponseDto> response =
+			taskService.getTasksByCursor(null, size);
+
+		// then
+		assertThat(response).isSameAs(expected);
+
+		ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
+		verify(taskRepository).findTasksByCursor(captor.capture(), eq(size));
+		String usedCursor = captor.getValue();
+		assertThat(usedCursor).isNotBlank();
+		assertThat(usedCursor).matches("\\d{2}\\.\\d{2}\\.\\d{2} \\d{2}:\\d{2}");
+	}
+
+	@DisplayName("커서가 빈 문자열이면 현재 시각으로 포맷된 커서를 사용하여 조회한다.")
+	@Test
+	void getTasksByCursor_usesFormattedCurrentTimeWhenCursorIsBlank() {
+		// given
+		int size = 5;
+		CursorPageResponse<TaskSimpleResponseDto> expected =
+			new CursorPageResponse<>(List.of(), null, false);
+		given(taskRepository.findTasksByCursor(anyString(), eq(size))).willReturn(expected);
+
+		// when
+		CursorPageResponse<TaskSimpleResponseDto> response =
+			taskService.getTasksByCursor("", size);
+
+		// then
+		assertThat(response).isSameAs(expected);
+
+		ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
+		verify(taskRepository).findTasksByCursor(captor.capture(), eq(size));
+		String usedCursor = captor.getValue();
+		assertThat(usedCursor).isNotBlank();
+		assertThat(usedCursor).matches("\\d{2}\\.\\d{2}\\.\\d{2} \\d{2}:\\d{2}");
+	}
+
+	@DisplayName("커서가 주어지면 해당 커서를 사용하여 조회한다.")
+	@Test
+	void getTasksByCursor_usesProvidedCursorWhenNotNullOrBlank() {
+		// given
+		String cursor = "25.05.01 15:00";
+		int size = 7;
+		CursorPageResponse<TaskSimpleResponseDto> expected =
+			new CursorPageResponse<>(List.of(), null, false);
+		given(taskRepository.findTasksByCursor(cursor, size)).willReturn(expected);
+
+		// when
+		CursorPageResponse<TaskSimpleResponseDto> response =
+			taskService.getTasksByCursor(cursor, size);
+
+		// then
+		assertThat(response).isSameAs(expected);
+		verify(taskRepository).findTasksByCursor(cursor, size);
+	}
 }
