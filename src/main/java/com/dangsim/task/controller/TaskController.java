@@ -19,24 +19,21 @@ import com.dangsim.task.dto.response.TaskSimpleResponseDto;
 import com.dangsim.task.service.TaskService;
 import com.dangsim.user.entity.User;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
+@Tag(name = "Task API", description = "심부름 API")
 @RestController
 @RequiredArgsConstructor
 public class TaskController {
 
 	private final TaskService taskService;
 
-	@GetMapping("/api/tasks/{taskId}")
-	public ResponseEntity<TaskDetailsResponseDto> getTaskById(
-		@PathVariable(name = "taskId") Long taskId,
-		@AuthenticationPrincipal User user
-	) {
-		TaskDetailsResponseDto response = taskService.getTaskById(taskId, user);
-		return ResponseEntity.ok(response);
-	}
-
+	@Operation(summary = "심부름 작성 API", description = "심부름 요청 글을 작성한다.")
+	@ApiResponse(useReturnTypeSchema = true)
 	@PostMapping("/api/tasks/task")
 	public ResponseEntity<TaskResponseDto> createTask(
 		@Valid @RequestBody TaskRequestDto requestDto,
@@ -46,6 +43,19 @@ public class TaskController {
 		return ResponseEntity.ok(response);
 	}
 
+	@Operation(summary = "심부름 상세 조회 API", description = "심부름 요청 글을 상세 조회한다.")
+	@ApiResponse(useReturnTypeSchema = true)
+	@GetMapping("/api/tasks/{taskId}")
+	public ResponseEntity<TaskDetailsResponseDto> getTaskById(
+		@PathVariable(name = "taskId") Long taskId,
+		@AuthenticationPrincipal User user
+	) {
+		TaskDetailsResponseDto response = taskService.getTaskById(taskId, user);
+		return ResponseEntity.ok(response);
+	}
+
+	@Operation(summary = "심부름 목록 조회 API", description = "심부름 요청 목록을 조회한다.")
+	@ApiResponse(useReturnTypeSchema = true)
 	@GetMapping("/api/tasks")
 	public ResponseEntity<CursorPageResponse<TaskSimpleResponseDto>> getTasksByCursor(
 		@RequestParam(name = "cursor", required = false) String cursor,
@@ -55,6 +65,8 @@ public class TaskController {
 		return ResponseEntity.ok(response);
 	}
 
+	@Operation(summary = "심부름 삭제 API", description = "심부름 요청 글을 삭제한다.")
+	@ApiResponse(useReturnTypeSchema = true)
 	@DeleteMapping("/api/tasks/{taskId}")
 	public ResponseEntity<TaskDeleteResponse> deleteTaskById(
 		@PathVariable(name = "taskId") Long taskId,

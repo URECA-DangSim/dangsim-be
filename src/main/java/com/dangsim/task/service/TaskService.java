@@ -30,15 +30,6 @@ public class TaskService {
 
 	private final TaskRepository taskRepository;
 
-	@Transactional(readOnly = true)
-	public TaskDetailsResponseDto getTaskById(Long taskId, User user) {
-		Task findTask = getTaskById(taskId);
-
-		boolean isMyTask = isTaskOwner(findTask, user);
-
-		return TaskMapper.toTaskDetailsResponseDto(findTask, isMyTask);
-	}
-
 	@Transactional
 	public TaskResponseDto createTask(TaskRequestDto requestDto, User user) {
 		validateEnoughDeadLine(requestDto.deadline(), LocalDateTime.now());
@@ -57,6 +48,19 @@ public class TaskService {
 		if (formattedDeadline.isBefore(now.plusMinutes(30))) {
 			throw new BaseException(TaskErrorCode.NOT_ENOUGH_DEADLINE);
 		}
+	}
+
+	@Transactional(readOnly = true)
+	public TaskDetailsResponseDto getTaskById(Long taskId, User user) {
+		Task findTask = getTaskById(taskId);
+
+		boolean isMyTask = isTaskOwner(findTask, user);
+
+		return TaskMapper.toTaskDetailsResponseDto(findTask, isMyTask);
+	}
+
+	private boolean isTaskOwner(Task task, User user) {
+		return Objects.equals(task.getUser(), user);
 	}
 
 	@Transactional(readOnly = true)
@@ -87,10 +91,6 @@ public class TaskService {
 		if (TaskStatus.isMatching(task.getStatus())) {
 			throw new BaseException(TaskErrorCode.IS_MATCHING);
 		}
-	}
-
-	private boolean isTaskOwner(Task task, User user) {
-		return Objects.equals(task.getUser(), user);
 	}
 
 	private Task getTaskById(Long taskId) {
