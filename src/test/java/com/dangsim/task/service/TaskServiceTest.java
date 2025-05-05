@@ -6,6 +6,7 @@ import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.*;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -21,6 +22,7 @@ import org.springframework.test.util.ReflectionTestUtils;
 import com.dangsim.common.exception.runtime.BaseException;
 import com.dangsim.common.fixture.TaskFixture;
 import com.dangsim.common.fixture.UserFixture;
+import com.dangsim.common.util.DateTimeFormatUtils;
 import com.dangsim.task.dto.request.TaskRequestDto;
 import com.dangsim.task.dto.response.TaskDetailsResponseDto;
 import com.dangsim.task.dto.response.TaskResponseDto;
@@ -140,7 +142,7 @@ public class TaskServiceTest {
 		// given
 		final String title = "제목입니다.";
 		final String content = "내용입니다";
-		final String deadline = "25.01.01 15:00";
+		final String deadline = DateTimeFormatUtils.formatDate(LocalDateTime.now().plusHours(3));
 		final int reward = 1000;
 		final String address = "서울특별시 강남구 대치2동";
 		List<String> imageUrls = Collections.EMPTY_LIST;
@@ -164,6 +166,31 @@ public class TaskServiceTest {
 			() -> assertTrue(responseDto.merchantUid().startsWith(task.getId().toString())),
 			() -> assertThat(responseDto.result()).isTrue()
 		);
+	}
+
+	@DisplayName("심부름 마감 기한이 30분 이내라면 예외가 발생한다.")
+	@Test
+	void throwFailSaveExceptionWhenNotEnoughDeadLine() {
+		// given
+		final String title = "제목입니다.";
+		final String content = "내용입니다";
+		final String deadline = DateTimeFormatUtils.formatDate(LocalDateTime.now().minusMinutes(15));
+		final int reward = 1000;
+		final String address = "서울특별시 강남구 대치2동";
+		List<String> imageUrls = Collections.EMPTY_LIST;
+
+		TaskRequestDto requestDto = new TaskRequestDto(title, content, deadline, reward, address, imageUrls);
+
+		User user = UserFixture.user(Role.USER, BigDecimal.ONE);
+		ReflectionTestUtils.setField(user, "id", 1L);
+
+		Task task = TaskFixture.task(title, content, user);
+		ReflectionTestUtils.setField(task, "id", 1L);
+
+		// when  // then
+		assertThatThrownBy(() -> taskService.createTask(requestDto, user))
+			.isInstanceOf(BaseException.class)
+			.hasMessage("충분한 마감기한이 아닙니다.");
 	}
 
 }
