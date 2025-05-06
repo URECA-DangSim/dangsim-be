@@ -13,7 +13,6 @@ public enum AuthErrorCode implements ErrorCode {
 	EXPIRED_TOKEN("만료된 토큰입니다.", "AUTH_002"),
 	UNAUTHORIZED_ACCESS("인가되지 않은 접근입니다.", "AUTH_003");
 
-
 	private final String message;
 	private final String code;
 }
