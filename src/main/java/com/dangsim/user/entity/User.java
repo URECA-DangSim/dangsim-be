@@ -65,4 +65,14 @@ public class User extends BaseEntity {
 			.reward(reward)
 			.build();
 	}
+
+	public static User of(String profileImage) {
+		return User.builder()
+				.nickname(null)  // 아직 미정
+				.profileImage(profileImage)
+				.address(null)   // 아직 미정
+				.role(Role.TMP_USER)
+				.reward(BigDecimal.ZERO)
+				.build();
+	}
 }
