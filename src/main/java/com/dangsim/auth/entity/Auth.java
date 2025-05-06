@@ -59,4 +59,12 @@ public class Auth extends BaseEntity {
 		this.providerId = providerId;
 		this.user = user;
 	}
+
+	public static Auth of(AuthProvider provider, String providerId, User user) {
+		return Auth.builder()
+				.provider(provider)
+				.providerId(providerId)
+				.user(user)
+				.build();
+	}
 }
