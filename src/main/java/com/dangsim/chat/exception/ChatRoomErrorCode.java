@@ -7,7 +7,9 @@ import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor
-public class ChatRoomErrorCode implements ErrorCode {
+public enum ChatRoomErrorCode implements ErrorCode {
+
+	NOT_FOUND_CHATROOM("해당하는 채팅방을 찾을 수 없습니다.","CHATROOM_001");
 
 	private final String message;
 	private final String code;
