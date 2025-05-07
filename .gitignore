@@ -39,3 +39,4 @@ out/
 .DS_Store
 /src/**/application*.yml
 /src/main/generated/
+/src/test/resources/**

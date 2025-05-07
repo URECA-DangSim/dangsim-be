@@ -58,4 +58,11 @@ public class User extends BaseEntity {
 		this.role = role;
 		this.reward = reward;
 	}
+
+	public static User of(Role role, BigDecimal reward) {
+		return User.builder()
+			.role(role)
+			.reward(reward)
+			.build();
+	}
 }
