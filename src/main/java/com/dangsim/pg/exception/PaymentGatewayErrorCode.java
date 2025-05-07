@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor
+// todo : enum 타입으로 바꾸기
 public class PaymentGatewayErrorCode implements ErrorCode {
 
 	private final String message;

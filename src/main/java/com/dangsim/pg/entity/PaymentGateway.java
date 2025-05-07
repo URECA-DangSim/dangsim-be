@@ -4,7 +4,13 @@ import static lombok.AccessLevel.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 
+import com.dangsim.task.entity.Task;
+import com.dangsim.task.entity.TaskImage;
+import com.dangsim.task.entity.TaskStatus;
+import com.dangsim.user.entity.Address;
+import com.dangsim.user.entity.User;
 import org.hibernate.annotations.Check;
 
 import com.dangsim.common.entity.BaseEntity;
@@ -20,6 +26,7 @@ import jakarta.validation.constraints.Size;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.web.bind.annotation.BindParam;
 
 @Entity
 @Table(name = "payment_gateway")
@@ -58,9 +65,9 @@ public class PaymentGateway extends BaseEntity {
 	@Column(name = "method", length = 30, nullable = false)
 	private String method;
 
-	@Size(max = 255)
-	@Column(name = "failReason", length = 255)
-	private String failReason;
+//	@Size(max = 255)
+//	@Column(name = "failReason", length = 255)
+//	private String failReason;
 
 	@Size(max = 50)
 	@Column(name = "cardCompany", length = 50)
@@ -72,7 +79,7 @@ public class PaymentGateway extends BaseEntity {
 
 	@NotNull
 	@Column(name = "amount", nullable = false)
-	private BigDecimal amount;
+	private BigDecimal amount; // BigDecimal
 
 	@Column(name = "installment")
 	private int installment;
@@ -90,17 +97,27 @@ public class PaymentGateway extends BaseEntity {
 	@Column(name = "cancelledAt")
 	private LocalDateTime cancelledAt;
 
+	private String userNickname;
+
+	private String taskTitle;
+
 	@Builder(access = PRIVATE)
-	private PaymentGateway(String merchantUid, String impUid, String pgTid, String currency,
-		String method, String failReason, String cardCompany, String cardNumberMasked,
+	// 250507 : nickName, taskTitle, amount ++
+	// 250507 : method 다음 failReason
+	private PaymentGateway(String userNickname, String taskTitle,
+						   String merchantUid, String impUid, String pgTid, String currency,
+		String method, String cardCompany, String cardNumberMasked,
 		BigDecimal amount, int installment, PaymentGatewayStatus status,
 		LocalDateTime requestedAt, LocalDateTime approvedAt, LocalDateTime cancelledAt) {
+
+		this.userNickname = userNickname;
+		this.taskTitle = taskTitle;
 		this.merchantUid = merchantUid;
 		this.impUid = impUid;
 		this.pgTid = pgTid;
 		this.currency = currency;
 		this.method = method;
-		this.failReason = failReason;
+//		this.failReason = failReason;
 		this.cardCompany = cardCompany;
 		this.cardNumberMasked = cardNumberMasked;
 		this.amount = amount;
@@ -110,4 +127,34 @@ public class PaymentGateway extends BaseEntity {
 		this.approvedAt = approvedAt;
 		this.cancelledAt = cancelledAt;
 	}
+
+	public static PaymentGateway of(String userNickname, String taskTitle,
+									String merchantUid, String impUid, String pgTid, String currency,
+									String method, String cardCompany, String cardNumberMasked,
+									BigDecimal amount, int installment, PaymentGatewayStatus status,
+									LocalDateTime requestedAt, LocalDateTime approvedAt, LocalDateTime cancelledAt) {
+		return PaymentGateway.builder()
+				.userNickname(userNickname)
+				.taskTitle(taskTitle)
+				.merchantUid(merchantUid)
+				.impUid(impUid)
+				.pgTid(pgTid)
+				.status(status)
+				.currency(currency)
+				.method(method)
+//				.failReason(failReason)
+				.cardCompany(cardCompany)
+				.cardNumberMasked(cardNumberMasked)
+				.amount(amount)
+				.installment(installment)
+				.status(status)
+				.requestedAt(requestedAt)
+				.approvedAt(approvedAt)
+				.cancelledAt(cancelledAt)
+				.build();
+	}
+
+//	public void setStatus(PaymentGatewayStatus status) {
+//		this.status = status;
+//	}
 }
