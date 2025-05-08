@@ -11,6 +11,7 @@ import com.dangsim.task.entity.TaskImage;
 import com.dangsim.task.entity.TaskStatus;
 import com.dangsim.user.entity.Address;
 import com.dangsim.user.entity.User;
+import jakarta.validation.constraints.Null;
 import org.hibernate.annotations.Check;
 
 import com.dangsim.common.entity.BaseEntity;
@@ -41,28 +42,30 @@ public class PaymentGateway extends BaseEntity {
 	private Long id;
 
 	@Size(max = 40)
-	@NotNull
-	@Column(name = "merchant_uid", length = 40, nullable = false, unique = true)
+	// nullable
+	@Column(name = "merchant_uid", length = 40, unique = true)
 	private String merchantUid;
 
 	@Size(max = 255)
-	@NotNull
-	@Column(name = "imp_uid", length = 255, nullable = false)
+	// nullable
+	@Column(name = "imp_uid", length = 255)
 	private String impUid;
 
 	@Size(max = 30)
-	@NotNull
-	@Column(name = "pg_tid", length = 30, nullable = false)
+	// nullable
+	@Column(name = "pg_tid", length = 30)
 	private String pgTid;
 
 	@Size(max = 10)
-	@NotNull
-	@Column(name = "currency", length = 10, nullable = false)
+//	@NotNull
+	// nullable
+	@Column(name = "currency", length = 10)
 	private String currency;
 
 	@Size(max = 30)
-	@NotNull
-	@Column(name = "method", length = 30, nullable = false)
+//	@NotNull
+	// nullable
+	@Column(name = "method", length = 30)
 	private String method;
 
 //	@Size(max = 255)
@@ -77,15 +80,17 @@ public class PaymentGateway extends BaseEntity {
 	@Column(name = "cardNumberMasked", length = 20)
 	private String cardNumberMasked;
 
-	@NotNull
-	@Column(name = "amount", nullable = false)
+//	@NotNull
+// nullable
+	@Column(name = "amount")
 	private BigDecimal amount; // BigDecimal
 
 	@Column(name = "installment")
 	private int installment;
 
-	@NotNull
-	@Column(name = "paymentGatewayStatus", nullable = false)
+//	@NotNull
+// nullable
+	@Column(name = "paymentGatewayStatus")
 	private PaymentGatewayStatus status;
 
 	@Column(name = "requestedAt")
@@ -97,21 +102,14 @@ public class PaymentGateway extends BaseEntity {
 	@Column(name = "cancelledAt")
 	private LocalDateTime cancelledAt;
 
-	private String userNickname;
-
-	private String taskTitle;
 
 	@Builder(access = PRIVATE)
-	// 250507 : nickName, taskTitle, amount ++
 	// 250507 : method 다음 failReason
-	private PaymentGateway(String userNickname, String taskTitle,
-						   String merchantUid, String impUid, String pgTid, String currency,
+	private PaymentGateway(String merchantUid, String impUid, String pgTid, String currency,
 		String method, String cardCompany, String cardNumberMasked,
-		BigDecimal amount, int installment, PaymentGatewayStatus status,
+		BigDecimal amount, Integer installment, PaymentGatewayStatus status,
 		LocalDateTime requestedAt, LocalDateTime approvedAt, LocalDateTime cancelledAt) {
 
-		this.userNickname = userNickname;
-		this.taskTitle = taskTitle;
 		this.merchantUid = merchantUid;
 		this.impUid = impUid;
 		this.pgTid = pgTid;
@@ -121,21 +119,19 @@ public class PaymentGateway extends BaseEntity {
 		this.cardCompany = cardCompany;
 		this.cardNumberMasked = cardNumberMasked;
 		this.amount = amount;
-		this.installment = installment;
+		this.installment = (installment != null) ? installment : 0; // installment이 null일 경우 0으로 설정
 		this.status = status;
 		this.requestedAt = requestedAt;
 		this.approvedAt = approvedAt;
 		this.cancelledAt = cancelledAt;
 	}
 
-	public static PaymentGateway of(String userNickname, String taskTitle,
-									String merchantUid, String impUid, String pgTid, String currency,
+	public static PaymentGateway of(String merchantUid, String impUid, String pgTid, String currency,
 									String method, String cardCompany, String cardNumberMasked,
-									BigDecimal amount, int installment, PaymentGatewayStatus status,
+									BigDecimal amount, Integer installment, PaymentGatewayStatus status,
 									LocalDateTime requestedAt, LocalDateTime approvedAt, LocalDateTime cancelledAt) {
+
 		return PaymentGateway.builder()
-				.userNickname(userNickname)
-				.taskTitle(taskTitle)
 				.merchantUid(merchantUid)
 				.impUid(impUid)
 				.pgTid(pgTid)
@@ -147,14 +143,11 @@ public class PaymentGateway extends BaseEntity {
 				.cardNumberMasked(cardNumberMasked)
 				.amount(amount)
 				.installment(installment)
+//				.installment((installment != null) ? installment : 0) // installment이 null일 경우 0으로 설정
 				.status(status)
 				.requestedAt(requestedAt)
 				.approvedAt(approvedAt)
 				.cancelledAt(cancelledAt)
 				.build();
 	}
-
-//	public void setStatus(PaymentGatewayStatus status) {
-//		this.status = status;
-//	}
 }

@@ -12,6 +12,5 @@ public enum PaymentGatewayStatus {
 	PG_PENDING("결제 대기"),
 	PG_CANCELLED("결제 취소");
 
-
 	private final String status;
 }
