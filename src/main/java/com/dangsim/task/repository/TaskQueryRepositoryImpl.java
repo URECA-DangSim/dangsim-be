@@ -5,7 +5,6 @@ import static com.dangsim.task.entity.QTask.*;
 import java.util.List;
 
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
 
 import com.dangsim.common.CursorPageResponse;
 import com.dangsim.common.util.DateTimeFormatUtils;
@@ -22,7 +21,6 @@ public class TaskQueryRepositoryImpl implements TaskQueryRepository {
 	private final JPAQueryFactory queryFactory;
 
 	@Override
-	@Transactional(readOnly = true)
 	public CursorPageResponse<TaskSimpleResponseDto> findTasksByCursor(String cursor, int size) {
 
 		List<TaskSimpleResponseDto> items = queryFactory
