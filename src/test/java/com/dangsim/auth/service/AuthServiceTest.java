@@ -1,12 +1,7 @@
 package com.dangsim.auth.service;
 
 import static org.assertj.core.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
-
-import java.time.LocalDateTime;
-import java.util.Map;
-import java.util.Optional;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -15,58 +10,48 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import com.dangsim.jwt.JwtProvider;
-import com.dangsim.token.entity.Token;
-import com.dangsim.token.repository.TokenRepository;
+import com.dangsim.auth.dto.response.AuthTokenResponse;
+import com.dangsim.auth.dto.response.KakaoUserResponse;
+import com.dangsim.auth.entity.AuthProvider;
+import com.dangsim.token.service.TokenService;
 import com.dangsim.user.entity.User;
-import com.dangsim.user.repository.UserRepository;
 
 @ExtendWith(MockitoExtension.class)
 class AuthServiceTest {
 
 	@Mock
-	private JwtProvider jwtProvider;
+	private KakaoOauthClient kakaoOauthClient;
 	@Mock
-	private UserRepository userRepository;
+	private AuthProcessor authProcessor;
 	@Mock
-	private TokenRepository tokenRepository;
+	private TokenService tokenService;
 
 	@InjectMocks
 	private AuthService authService;
 
 	@Test
-	@DisplayName("로그아웃 시 사용자에 해당하는 토큰 정보를 삭제한다.")
-	void logout() {
-		// given
+	@DisplayName("카카오 로그인 시 사용자 정보를 기반으로 토큰을 발급한다.")
+	void handleKakaoLogin_success() {
+		//given
+		String code = "auth-code";
+		String accessToken = "auth-access-token";
+		KakaoUserResponse.KakaoProfile profile = new KakaoUserResponse.KakaoProfile("https://test.com/image.png");
+		KakaoUserResponse.KakaoAccount account = new KakaoUserResponse.KakaoAccount(profile);
+		KakaoUserResponse userInfo = new KakaoUserResponse(123L, account);
 		User user = mock(User.class);
-		when(userRepository.findById(1L)).thenReturn(Optional.of(user));
-		doNothing().when(tokenRepository).deleteByUser(user);
+		AuthTokenResponse expected = new AuthTokenResponse("access", "refresh", "USER");
 
-		// when
-		authService.logout(1L, "access");
+		when(kakaoOauthClient.getAccessToken(code)).thenReturn(accessToken);
+		when(kakaoOauthClient.getUserInfo(accessToken)).thenReturn(userInfo);
+		when(authProcessor.process(AuthProvider.KAKAO, userInfo)).thenReturn(user);
+		when(tokenService.issueTokensFor(user)).thenReturn(expected);
 
-		// then
-		verify(tokenRepository, times(1)).deleteByUser(user);
+		//when
+		AuthTokenResponse response = authService.handleKakaoLogin(code);
+
+		//then
+		assertThat(response).isEqualTo(expected);
+
 	}
 
-	@Test
-	@DisplayName("refresh 토큰이 유효할 경우 새로운 access, refresh 토큰을 발급한다.")
-	void reissue() {
-		// given
-		User user = mock(User.class);
-		Token token = mock(Token.class);
-
-		when(userRepository.findById(1L)).thenReturn(Optional.of(user));
-		when(tokenRepository.findByUser(user)).thenReturn(Optional.of(token));
-		when(token.getRefreshToken()).thenReturn("oldToken");
-		when(token.getExpiryTime()).thenReturn(LocalDateTime.now().plusMinutes(10));
-		when(jwtProvider.createAccessToken(any())).thenReturn("newAccessToken");
-		when(jwtProvider.createRefreshToken()).thenReturn("newRefreshToken");
-
-		// when
-		Map<String, String> result = authService.reissue(1L, "oldToken");
-
-		// then
-		assertThat(result).containsKeys("accessToken", "refreshToken");
-	}
 }
