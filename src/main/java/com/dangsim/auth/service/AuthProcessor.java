@@ -35,7 +35,8 @@ public class AuthProcessor {
 	}
 
 	private User createAuthAndUser(KakaoUserResponse user, AuthProvider provider, String oauthId) {
-		User newUser = userRepository.save(User.of(user.profileImage()));
+		String profileImage = user.profileImage();
+		User newUser = userRepository.save(User.of(profileImage));
 		authRepository.save(Auth.of(provider, oauthId, newUser));
 		return newUser;
 	}

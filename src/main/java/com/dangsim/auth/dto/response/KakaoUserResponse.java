@@ -8,6 +8,9 @@ public record KakaoUserResponse(
 	KakaoAccount kakaoAccount
 ) {
 	public String profileImage() {
+		if (kakaoAccount == null || kakaoAccount.profile == null || kakaoAccount.profile.profileImageUrl == null) {
+			return null;
+		}
 		return kakaoAccount.profile.profileImageUrl;
 	}
 
