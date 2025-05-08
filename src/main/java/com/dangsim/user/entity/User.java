@@ -75,4 +75,8 @@ public class User extends BaseEntity {
 			.reward(BigDecimal.ZERO)
 			.build();
 	}
+
+	public void updateProfileImage(String profileImage) {
+		this.profileImage = profileImage;
+	}
 }

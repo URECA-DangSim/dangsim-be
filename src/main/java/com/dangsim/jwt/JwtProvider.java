@@ -1,6 +1,7 @@
 package com.dangsim.jwt;
 
 import java.nio.charset.StandardCharsets;
+import java.time.Clock;
 import java.util.Date;
 
 import javax.crypto.SecretKey;
@@ -21,6 +22,7 @@ public class JwtProvider {
 	@Value("${jwt.secret}")
 	private String secret;
 
+	private final Clock clock;
 	private SecretKey key;
 
 	private static final long ACCESS_EXP = 1000 * 60 * 60 * 1;  // 1시간
@@ -32,18 +34,24 @@ public class JwtProvider {
 	}
 
 	public String createAccessToken(Long userId) {
+		Date now = Date.from(clock.instant());
+		Date expiry = new Date(now.getTime() + ACCESS_EXP);
+
 		return Jwts.builder()
 			.subject(String.valueOf(userId))
-			.issuedAt(new Date())
-			.expiration(new Date(System.currentTimeMillis() + ACCESS_EXP))
+			.issuedAt(now)
+			.expiration(expiry)
 			.signWith(key, Jwts.SIG.HS256)
 			.compact();
 	}
 
 	public String createRefreshToken() {
+		Date now = Date.from(clock.instant());
+		Date expiry = new Date(now.getTime() + REFRESH_EXP);
+
 		return Jwts.builder()
-			.issuedAt(new Date())
-			.expiration(new Date(System.currentTimeMillis() + REFRESH_EXP))
+			.issuedAt(now)
+			.expiration(expiry)
 			.signWith(key, Jwts.SIG.HS256)
 			.compact();
 	}
