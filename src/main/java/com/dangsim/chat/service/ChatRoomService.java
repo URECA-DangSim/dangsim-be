@@ -1,14 +1,20 @@
 package com.dangsim.chat.service;
 
+import java.time.LocalDateTime;
+import java.util.Objects;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.dangsim.chat.dto.ChatRoomMapper;
 import com.dangsim.chat.dto.request.CreateChatRoomRequest;
 import com.dangsim.chat.dto.response.ChatRoomResponse;
+import com.dangsim.chat.dto.response.ChatRoomSimpleResponse;
 import com.dangsim.chat.entity.ChatRoom;
 import com.dangsim.chat.repository.ChatRoomRepository;
+import com.dangsim.common.CursorPageResponse;
 import com.dangsim.common.exception.runtime.BaseException;
+import com.dangsim.common.util.DateTimeFormatUtils;
 import com.dangsim.task.entity.Task;
 import com.dangsim.task.exception.TaskErrorCode;
 import com.dangsim.task.repository.TaskRepository;
@@ -36,5 +42,14 @@ public class ChatRoomService {
 		ChatRoom savedChatRoom = chatRoomRepository.save(chatRoom);
 
 		return ChatRoomMapper.toChatRoomResponse(savedChatRoom);
+	}
+
+	@Transactional(readOnly = true)
+	public CursorPageResponse<ChatRoomSimpleResponse> getChatRoomsByCursor(String cursor, int size, Long userId) {
+		if (Objects.isNull(cursor) || cursor.isBlank()) {
+			cursor = DateTimeFormatUtils.formatDateTime(LocalDateTime.now());
+		}
+
+		return chatRoomRepository.findChatRoomsByCursor(cursor, size, userId);
 	}
 }
