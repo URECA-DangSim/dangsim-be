@@ -34,4 +34,9 @@ public class Address {
 
 		return new Address(addressParts[0], addressParts[1], addressParts[2]);
 	}
+
+	@Override
+	public String toString() {
+		return city + " " + street + " " + zipcode;
+	}
 }
