@@ -1,4 +1,4 @@
-package com.dangsim.chat.exception;
+package com.dangsim.common.exception.errorcode;
 
 import com.dangsim.common.exception.runtime.ErrorCode;
 
@@ -7,10 +7,9 @@ import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor
-public enum ChatMessageErrorCode implements ErrorCode {
+public enum InterceptorErrorCode implements ErrorCode {
 
-	CHATTYPE_ISNULL("chat type이 null이 되면 안됩니다.", "CHAT_001");
-
+	WRONG_HEADER("권한 부여 헤더가 누락되었거나 잘못되었습니다.", "INTERCEPTOR_001");
 	private final String message;
 	private final String code;
 }
