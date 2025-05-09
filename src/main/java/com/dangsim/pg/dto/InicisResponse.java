@@ -1,19 +1,15 @@
 package com.dangsim.pg.dto;
 
-import com.dangsim.pg.entity.PaymentGatewayStatus;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.springframework.validation.beanvalidation.SpringValidatorAdapter;
-
-import java.io.PrintWriter;
 
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
 public class InicisResponse {
 
-    private int code; // 응답코드 - 0이면 정상적인 조히, 아니면 Msg 확인 필요
+    private int code; // 응답코드 - 0이면 정상적인 조회, 아니면 Msg 확인 필요
     private String message;
     private Response response;
 
@@ -21,15 +17,13 @@ public class InicisResponse {
     public static class Response {
         private String imp_uid; // 포트원 결제 고유 uid
         private String merchant_uid; // 주문번호
-//        private String channel; // 결제 환경 구분 코드 : pc, mobile, api Todo 안받아도 될듯
         private String pay_method;
         private String pg_provider; // pg사 구분코드
-//        private String emb_pg_provider; // 허브형 결제 pg사 구분코드 Todo 안받아도 될듯
         private String pg_tid; // pg사 거래 번호
         private String pg_id; // pg사 mid
         private int amount;
         private String currency; // 통화 구분
-        private String apply_num; // 신용카드 승인번호 Todo 안받아도 될듯
+        private String apply_num; // 신용카드 승인번호
         private String buyer_name;
         private String card_code; // 카드사 코드 번호
         private String card_name; // 카드사명 - card company

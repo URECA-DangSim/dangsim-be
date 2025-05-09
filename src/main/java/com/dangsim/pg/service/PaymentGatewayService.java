@@ -6,7 +6,6 @@ import com.dangsim.pg.entity.PaymentGateway;
 import com.dangsim.pg.entity.PaymentGatewayStatus;
 import com.dangsim.pg.repository.PaymentGatewayRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
@@ -30,12 +29,6 @@ public class PaymentGatewayService {
     @Value("${portone.imp_secret}")
     private String apiSecret;
 
-    @PostConstruct
-    public void init() {
-//        System.out.println("apiKey = " + apiKey);
-//        System.out.println("apiSecret = " + apiSecret);
-    }
-
     private final RestTemplate restTemplate;
 
     private final PaymentGatewayRepository paymentGatewayRepository;
@@ -48,7 +41,8 @@ public class PaymentGatewayService {
         body.put("imp_key", apiKey);
         body.put("imp_secret", apiSecret);
 
-        ObjectMapper objectMapper = new ObjectMapper(); // json 형태로 직렬화
+        // http 요청 body에 json을 보내기 위해 Java 객체를 JSON 문자열로 변환
+        ObjectMapper objectMapper = new ObjectMapper();
         String requestBody;
         try {
             requestBody = objectMapper.writeValueAsString(body);
@@ -72,7 +66,8 @@ public class PaymentGatewayService {
     public PaymentGateway verifyPaymentDetail(BigDecimal clientAmount, String impUid) {
         String token = getAccessToken();
 
-        String url = "https://api.iamport.kr/payments/" + impUid;
+        String PORTONE_PAYMENT_LOOKUP_URL = "https://api.iamport.kr/payments/";
+        String url = PORTONE_PAYMENT_LOOKUP_URL + impUid;
 
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(token);
@@ -104,19 +99,15 @@ public class PaymentGatewayService {
                 paymentData.getBuyer_name(),
                 paymentData.getCard_code(),
                 paymentData.getCard_name(),
-//                Integer.valueOf(paymentData.getCard_quota()),
                 paymentData.getCard_quota(),
                 paymentData.getCard_number(),
                 PaymentGatewayStatus.valueOf(paymentData.getStatus().toUpperCase()),
                 paymentData.getCard_type(),
                 parseDateTimePG(paymentData.getStarted_at()),
                 parseDateTimePG(paymentData.getPaid_at()),
-                parseDateTimePG(paymentData.getCanceled_at()),
+                paymentData.getCanceled_at() == null ? null : parseDateTimePG(paymentData.getCanceled_at()),
                 parseDateTimePG(paymentData.getFailed_at())
         );
         return paymentGatewayRepository.save(paymentGateway);
-//        PaymentGateway savedPayment = paymentGatewayRepository.save(paymentGateway);
-//        paymentGatewayRepository.flush();  // 추가
-//        return savedPayment;
     }
 }

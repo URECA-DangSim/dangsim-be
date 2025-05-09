@@ -13,11 +13,6 @@ public enum PaymentStatus {
 	PAYMENT_CALCULATED("정산"),
 	PAYMENT_REFUNDED("환불");
 
-//	ready,
-//	paid,
-//	cancelled,
-//	failed;
-
 	private final String status;
 
 }
