@@ -25,6 +25,8 @@ import com.dangsim.common.exception.runtime.BaseException;
 import com.dangsim.common.fixture.TaskFixture;
 import com.dangsim.common.fixture.UserFixture;
 import com.dangsim.common.util.DateTimeFormatUtils;
+import com.dangsim.payment.entity.Payment;
+import com.dangsim.payment.repository.PaymentRepository;
 import com.dangsim.task.dto.request.TaskRequestDto;
 import com.dangsim.task.dto.response.TaskDeleteResponse;
 import com.dangsim.task.dto.response.TaskDetailsResponseDto;
@@ -42,6 +44,9 @@ public class TaskServiceTest {
 
 	@Mock
 	TaskRepository taskRepository;
+
+	@Mock
+	PaymentRepository paymentRepository;
 
 	@InjectMocks
 	TaskService taskService;
@@ -161,6 +166,7 @@ public class TaskServiceTest {
 		ReflectionTestUtils.setField(task, "id", 1L);
 
 		given(taskRepository.save(any(Task.class))).willReturn(task);
+		given(paymentRepository.save(any(Payment.class))).willReturn(any());
 
 		// when
 		TaskResponseDto responseDto = taskService.createTask(requestDto, user);

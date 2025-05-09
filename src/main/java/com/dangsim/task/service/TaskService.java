@@ -1,5 +1,7 @@
 package com.dangsim.task.service;
 
+import static com.dangsim.payment.entity.PaymentStatus.*;
+
 import java.time.LocalDateTime;
 import java.util.Objects;
 
@@ -10,6 +12,8 @@ import com.dangsim.common.CursorPageResponse;
 import com.dangsim.common.exception.runtime.BaseException;
 import com.dangsim.common.util.DateTimeFormatUtils;
 import com.dangsim.common.util.IdentifierUtils;
+import com.dangsim.payment.entity.Payment;
+import com.dangsim.payment.repository.PaymentRepository;
 import com.dangsim.task.dto.TaskMapper;
 import com.dangsim.task.dto.request.TaskRequestDto;
 import com.dangsim.task.dto.response.TaskDeleteResponse;
@@ -29,6 +33,7 @@ import lombok.RequiredArgsConstructor;
 public class TaskService {
 
 	private final TaskRepository taskRepository;
+	private final PaymentRepository paymentRepository;
 
 	@Transactional
 	public TaskResponseDto createTask(TaskRequestDto requestDto, User user) {
@@ -38,6 +43,8 @@ public class TaskService {
 		Task saveTask = taskRepository.save(task);
 
 		String merchantUid = IdentifierUtils.generateMerchantUid(saveTask.getId(), LocalDateTime.now());
+
+		paymentRepository.save(Payment.of(saveTask.getReward(), PAYMENT_SUCCESSES, merchantUid, saveTask, user));
 
 		return TaskMapper.toTaskResponseDto(saveTask, merchantUid);
 	}
