@@ -18,7 +18,7 @@ import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.dangsim.common.util.DateTimeFormatUtils.parseDateTime;
+import static com.dangsim.common.util.DateTimeFormatUtils.parseDateTimePG;
 
 @Service
 @RequiredArgsConstructor
@@ -72,8 +72,6 @@ public class PaymentGatewayService {
     public PaymentGateway verifyPaymentDetail(BigDecimal clientAmount, String impUid) {
         String token = getAccessToken();
 
-//        System.out.println("token = " + token);
-
         String url = "https://api.iamport.kr/payments/" + impUid;
 
         HttpHeaders headers = new HttpHeaders();
@@ -91,7 +89,6 @@ public class PaymentGatewayService {
         if (clientAmount.compareTo(portOneAmount) != 0) {
             throw new IllegalArgumentException("결제 금액이 일치하지 않습니다.");
         }
-        // 여기서 우선 200 return
 
         // 2. 금액이 같으면 PaymentGateway 엔티티 생성
         PaymentGateway paymentGateway = PaymentGateway.of(
@@ -112,10 +109,10 @@ public class PaymentGatewayService {
                 paymentData.getCard_number(),
                 PaymentGatewayStatus.valueOf(paymentData.getStatus().toUpperCase()),
                 paymentData.getCard_type(),
-                parseDateTime(paymentData.getStarted_at()),
-                parseDateTime(paymentData.getPaid_at()),
-                parseDateTime(paymentData.getCanceled_at()),
-                parseDateTime(paymentData.getFailed_at())
+                parseDateTimePG(paymentData.getStarted_at()),
+                parseDateTimePG(paymentData.getPaid_at()),
+                parseDateTimePG(paymentData.getCanceled_at()),
+                parseDateTimePG(paymentData.getFailed_at())
         );
         return paymentGatewayRepository.save(paymentGateway);
 //        PaymentGateway savedPayment = paymentGatewayRepository.save(paymentGateway);

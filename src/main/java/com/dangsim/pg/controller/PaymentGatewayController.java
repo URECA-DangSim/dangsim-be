@@ -23,10 +23,8 @@ public class PaymentGatewayController {
 
         // imp_uid를 보내주면 서비스에서 imp_uid 값을 기반으로 조회 및 처리
         BigDecimal amount = paymentResponseDto.getAmount();
-        PaymentGateway paymentGateway = paymentGatewayService.verifyPaymentDetail(amount, paymentResponseDto.getImpUid());
+        PaymentGateway paymentGateway = paymentGatewayService.verifyPaymentDetail(amount, paymentResponseDto.getImpUid()); // todo 값을 받을 필요가 있나?
 
-//        paymentGatewayRepository.save(paymentGateway);
-//        System.out.println("저장!");
-        return ResponseEntity.ok().body("성공"); // 상태코드 200
+        return ResponseEntity.ok().body("성공"); // 검증 후 DB 저장
     }
 }

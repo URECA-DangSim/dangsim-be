@@ -27,15 +27,15 @@ public class DateTimeFormatUtils {
 		return now.format(formatter);
 	}
 
-//	public static LocalDateTime parseDateTime(String deadline) {
-//		if (Objects.isNull(deadline) || deadline.isBlank()) {
-//			throw new BaseException(UtilsErrorCode.DATE_TIME_IS_NULL);
-//		}
-//
-//		return LocalDateTime.parse(deadline, formatter);
-//	}
-
 	public static LocalDateTime parseDateTime(String deadline) {
+		if (Objects.isNull(deadline) || deadline.isBlank()) {
+			throw new BaseException(UtilsErrorCode.DATE_TIME_IS_NULL);
+		}
+
+		return LocalDateTime.parse(deadline, formatter);
+	}
+
+	public static LocalDateTime parseDateTimePG(String deadline) {
 		if (Objects.isNull(deadline) || deadline.isBlank()) {
 			throw new BaseException(UtilsErrorCode.DATE_TIME_IS_NULL);
 		}
