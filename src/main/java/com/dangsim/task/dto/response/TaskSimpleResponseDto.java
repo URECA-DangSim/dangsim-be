@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 
+import com.dangsim.common.util.DateTimeFormatUtils;
 import com.dangsim.task.entity.Task;
 import com.dangsim.task.entity.TaskImage;
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -27,7 +28,7 @@ public record TaskSimpleResponseDto(
 			task.getDeadline(),
 			task.getReward().toPlainString(),
 			setImageUrl(task.getImages()),
-			task.getCreatedAt().toString()
+			DateTimeFormatUtils.formatDateTime(task.getCreatedAt())
 		);
 	}
 
