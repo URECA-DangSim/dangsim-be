@@ -45,19 +45,19 @@ public class ChatMessage extends BaseEntity {
 	private Long chatRoomId;
 
 	@Builder(access = PRIVATE)
-	private ChatMessage(String message, boolean isRead, Long userId, Long chatRoomId){
+	private ChatMessage(String message, boolean isRead, Long userId, Long chatRoomId) {
 		this.message = message;
 		this.isRead = isRead;
 		this.userId = userId;
 		this.chatRoomId = chatRoomId;
 	}
 
-
 	public static ChatMessage of(Long chatRoomId, Long userId, String message) {
 		return ChatMessage.builder()
-				.message(message)
-				.userId(userId)
-				.chatRoomId(chatRoomId)
-				.build();
+			.message(message)
+			.userId(userId)
+			.chatRoomId(chatRoomId)
+			.isRead(false)
+			.build();
 	}
 }
