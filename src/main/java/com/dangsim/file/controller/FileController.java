@@ -20,11 +20,11 @@ public class FileController {
 
 	private final FileService fileService;
 
-//	@PostMapping(value = "/api/files/images", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-//	public ResponseEntity<UploadFilesResponseDto> uploadFromProfile(
-//		@RequestPart("files") UploadFilesRequestDto request,
-//		@AuthenticationPrincipal User user) {
-//		UploadFilesResponseDto response = fileService.uploadFromTask(request, user);
-//		return ResponseEntity.ok(response);
-//	}
+	@PostMapping(value = "/api/files/images", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+	public ResponseEntity<UploadFilesResponseDto> uploadFromProfile(
+		@RequestPart("files") UploadFilesRequestDto request,
+		@AuthenticationPrincipal User user) {
+		UploadFilesResponseDto response = fileService.uploadFromTask(request, user);
+		return ResponseEntity.ok(response);
+	}
 }
