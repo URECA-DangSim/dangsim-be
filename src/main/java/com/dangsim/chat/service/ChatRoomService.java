@@ -19,6 +19,7 @@ import com.dangsim.task.entity.Task;
 import com.dangsim.task.exception.TaskErrorCode;
 import com.dangsim.task.repository.TaskRepository;
 import com.dangsim.user.entity.User;
+import com.dangsim.user.exception.UserErrorCode;
 import com.dangsim.user.repository.UserRepository;
 
 import jakarta.validation.Valid;
@@ -37,7 +38,7 @@ public class ChatRoomService {
 		Task task = taskRepository.findById(request.taskID())
 			.orElseThrow(() -> new BaseException(TaskErrorCode.NOT_FOUND_TASK));
 		User requester = userRepository.findById(task.getUser().getId())
-			.orElseThrow(() -> new RuntimeException("회원 검색 실패 임시에러")); //추후 수정 필요 (에러코드)
+			.orElseThrow(() -> new BaseException(UserErrorCode.USER_NOT_FOUND));
 		ChatRoom chatRoom = ChatRoom.of(task, requester, performer);
 		ChatRoom savedChatRoom = chatRoomRepository.save(chatRoom);
 
