@@ -1,6 +1,6 @@
 package com.dangsim.pg.controller;
 
-import com.dangsim.pg.dto.PaymentResponseDto;
+import com.dangsim.pg.dto.PaymentResponse;
 import com.dangsim.pg.entity.PaymentGateway;
 import com.dangsim.pg.repository.PaymentGatewayRepository;
 import com.dangsim.pg.service.PaymentGatewayService;
@@ -19,7 +19,7 @@ public class PaymentGatewayController {
     private final PaymentGatewayRepository paymentGatewayRepository;
 
     @PostMapping("/completion")
-    public ResponseEntity<?> completePayment(@RequestBody PaymentResponseDto paymentResponseDto) {
+    public ResponseEntity<?> completePayment(@RequestBody PaymentResponse paymentResponseDto) {
 
         // imp_uid를 보내주면 서비스에서 imp_uid 값을 기반으로 조회 및 처리
         BigDecimal amount = paymentResponseDto.getAmount();

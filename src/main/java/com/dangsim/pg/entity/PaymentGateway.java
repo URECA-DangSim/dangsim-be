@@ -4,14 +4,8 @@ import static lombok.AccessLevel.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.List;
 
-import com.dangsim.task.entity.Task;
-import com.dangsim.task.entity.TaskImage;
-import com.dangsim.task.entity.TaskStatus;
-import com.dangsim.user.entity.Address;
-import com.dangsim.user.entity.User;
-import jakarta.validation.constraints.Null;
+import jakarta.annotation.Nullable;
 import org.hibernate.annotations.Check;
 
 import com.dangsim.common.entity.BaseEntity;
@@ -27,11 +21,10 @@ import jakarta.validation.constraints.Size;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.springframework.web.bind.annotation.BindParam;
 
 @Entity
 @Table(name = "payment_gateway")
-@Check(constraints = "amount >= 100 AND amount <= 1000000")
+@Check(constraints = "amount >= 1 AND amount <= 1000000")
 @Getter
 @NoArgsConstructor(access = PROTECTED)
 public class PaymentGateway extends BaseEntity {
@@ -41,20 +34,40 @@ public class PaymentGateway extends BaseEntity {
 	@Column(name = "payment_gateway_id")
 	private Long id;
 
+	@Size(max = 255)
+//	@Nullable
+	@Column(name = "imp_uid", length = 255)
+	private String impUid;
+
 	@Size(max = 40)
-	// nullable
+//	@Nullable
 	@Column(name = "merchant_uid", length = 40, unique = true)
 	private String merchantUid;
 
-	@Size(max = 255)
+	@Size(max = 30)
+//	@NotNull
 	// nullable
-	@Column(name = "imp_uid", length = 255)
-	private String impUid;
+	@Column(name = "pay_method", length = 30)
+	private String payMethod;
+
+	@Size(max = 30)
+//	@NotNull
+	@Column(name = "pg_provider", length = 30)
+	private String pgProvider;
 
 	@Size(max = 50)
 	// nullable
 	@Column(name = "pg_tid", length = 30)
 	private String pgTid;
+
+	@Size(max = 30)
+	@Column(name = "pg_id", length = 30)
+	private String pgId;
+
+//	@NotNull
+// nullable
+	@Column(name = "amount")
+	private BigDecimal amount; // BigDecimal
 
 	@Size(max = 10)
 //	@NotNull
@@ -64,98 +77,109 @@ public class PaymentGateway extends BaseEntity {
 
 	@Size(max = 30)
 //	@NotNull
-	// nullable
-	@Column(name = "method", length = 30)
-	private String method;
+	@Column(name = "apply_num", length = 30)
+	private String applyNum;
 
-//	@Size(max = 255)
-//	@Column(name = "failReason", length = 255)
-//	private String failReason;
+	@Size(max = 30)
+//	@NotNull
+	@Column(name = "buyer_name", length = 30)
+	private String buyerName;
+
+	@Size(max = 10)
+//	@NotNull
+	@Column(name = "card_code")
+	private String cardCode;
 
 	@Size(max = 50)
-	@Column(name = "cardCompany", length = 50)
-	private String cardCompany;
+	@Column(name = "card_name", length = 50)
+	private String cardName;
 
 	@Size(max = 20)
-	@Column(name = "cardNumberMasked", length = 20)
+	@Column(name = "card_number_masked", length = 20)
 	private String cardNumberMasked;
 
-//	@NotNull
-// nullable
-	@Column(name = "amount")
-	private BigDecimal amount; // BigDecimal
+	@Column(name = "card_quota")
+	// int
+	private String cardQuota;
 
-	@Column(name = "installment")
-	private int installment;
+	@Column(name = "card_number")
+	private String cardNumber;
 
 //	@NotNull
-// nullable
-	@Column(name = "paymentGatewayStatus")
+	@Column(name = "status")
 	private PaymentGatewayStatus status;
 
-	@Column(name = "requestedAt")
-//	private LocalDateTime requestedAt;
+	@Column(name = "card_type")
+	private String cardType;
+
+	@Column(name = "start_at")
 	private LocalDateTime startedAt; // 결제 시작시점
 
-	@Column(name = "approvedAt")
-//	private LocalDateTime approvedAt;
+	@Column(name = "paid_at")
 	private LocalDateTime paidAt; // 결제 완료 시점
 
-	@Column(name = "cancelledAt")
-	private LocalDateTime cancelledAt;
+	@Column(name = "canceled_at")
+	private LocalDateTime canceledAt;
 
-	// new!
-	@Column(name = "failedAt")
+	@Column(name = "failed_at")
 	private LocalDateTime failedAt;
 
-
 	@Builder(access = PRIVATE)
-	// 250507 : method 다음 failReason
-	private PaymentGateway(String merchantUid, String impUid, String pgTid, String currency,
-		String method, String cardCompany, String cardNumberMasked,
-		BigDecimal amount, Integer installment, PaymentGatewayStatus status,
-		LocalDateTime startedAt, LocalDateTime paidAt, LocalDateTime cancelledAt, LocalDateTime failedAt) {
-
-		this.merchantUid = merchantUid;
+	private PaymentGateway(String impUid, String merchantUid, String payMethod, String pgProvider,
+						   String pgTid, String pgId, BigDecimal amount, String currency,
+						   String applyNum, String buyerName, String cardCode, String cardName,
+						   String cardQuota, String cardNumber, PaymentGatewayStatus status, String cardType,
+						   LocalDateTime startedAt, LocalDateTime paidAt, LocalDateTime canceledAt, LocalDateTime failedAt) {
 		this.impUid = impUid;
+		this.merchantUid = merchantUid;
+		this.payMethod = payMethod;
+		this.pgProvider = pgProvider;
 		this.pgTid = pgTid;
-		this.currency = currency;
-		this.method = method;
-//		this.failReason = failReason;
-		this.cardCompany = cardCompany;
-		this.cardNumberMasked = cardNumberMasked;
+		this.pgId = pgId;
 		this.amount = amount;
-		this.installment = (installment != null) ? installment : 0; // installment이 null일 경우 0으로 설정
+		this.currency = currency;
+		this.applyNum = applyNum;
+		this.buyerName = buyerName;
+		this.cardCode = cardCode;
+		this.cardName = cardName;
+		this.cardQuota = cardQuota;
+		this.cardNumber = cardNumber;
 		this.status = status;
+		this.cardType = cardType;
 		this.startedAt = startedAt;
 		this.paidAt = paidAt;
-		this.cancelledAt = cancelledAt;
+		this.canceledAt = canceledAt;
 		this.failedAt = failedAt;
 	}
 
-	public static PaymentGateway of(String merchantUid, String impUid, String pgTid, String currency,
-									String method, String cardCompany, String cardNumberMasked,
-									BigDecimal amount, Integer installment, PaymentGatewayStatus status,
-									LocalDateTime startedAt, LocalDateTime paidAt) {
+	public static PaymentGateway of(String impUid, String merchantUid, String payMethod, String pgProvider,
+									String pgTid, String pgId, BigDecimal amount, String currency,
+									String applyNum, String buyerName, String cardCode, String cardName,
+									String cardQuota, String cardNumber, PaymentGatewayStatus status, String cardType,
+									LocalDateTime startedAt, LocalDateTime paidAt,
+									LocalDateTime canceledAt, LocalDateTime failedAt) {
 
 		return PaymentGateway.builder()
-				.merchantUid(merchantUid)
 				.impUid(impUid)
+				.merchantUid(merchantUid)
+				.payMethod(payMethod)
+				.pgProvider(pgProvider)
 				.pgTid(pgTid)
-				.status(status)
-				.currency(currency)
-				.method(method)
-//				.failReason(failReason)
-				.cardCompany(cardCompany)
-				.cardNumberMasked(cardNumberMasked)
+				.pgId(pgId)
 				.amount(amount)
-				.installment(installment)
-//				.installment((installment != null) ? installment : 0) // installment이 null일 경우 0으로 설정
+				.currency(currency)
+				.applyNum(applyNum)
+				.buyerName(buyerName)
+				.cardCode(cardCode)
+				.cardName(cardName)
+				.cardQuota(cardQuota)
+				.cardNumber(cardNumber)
 				.status(status)
+				.cardType(cardType)
 				.startedAt(startedAt)
 				.paidAt(paidAt)
-//				.cancelledAt(cancelledAt)
-//				.failedAt(failedAt)
+				.canceledAt(canceledAt)
+				.failedAt(failedAt)
 				.build();
 	}
 }

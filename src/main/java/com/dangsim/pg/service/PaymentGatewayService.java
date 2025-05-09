@@ -91,32 +91,35 @@ public class PaymentGatewayService {
         if (clientAmount.compareTo(portOneAmount) != 0) {
             throw new IllegalArgumentException("결제 금액이 일치하지 않습니다.");
         }
+        // 여기서 우선 200 return
 
         // 2. 금액이 같으면 PaymentGateway 엔티티 생성
         PaymentGateway paymentGateway = PaymentGateway.of(
-                paymentData.getMerchant_uid(),
                 paymentData.getImp_uid(),
+                paymentData.getMerchant_uid(),
+                paymentData.getPay_method(),
+                paymentData.getPg_provider(),
                 paymentData.getPg_tid(),
-                paymentData.getCurrency(),
-                paymentData.getCard_type(), // 결제 방법 : 신용카드(0) / 체크카드(1)
-                paymentData.getCard_name(), // card company
-                paymentData.getCard_number(),
+                paymentData.getPg_id(),
                 BigDecimal.valueOf(paymentData.getAmount()),
-                Integer.valueOf(paymentData.getCard_quota()), // 할부개월수
-                PaymentGatewayStatus.valueOf(paymentData.getStatus().toUpperCase()), // status (예: 'paid')
-//                PaymentGatewayStatus.from(paymentData.getStatus()),
+                paymentData.getCurrency(),
+                paymentData.getApply_num(),
+                paymentData.getBuyer_name(),
+                paymentData.getCard_code(),
+                paymentData.getCard_name(),
+//                Integer.valueOf(paymentData.getCard_quota()),
+                paymentData.getCard_quota(),
+                paymentData.getCard_number(),
+                PaymentGatewayStatus.valueOf(paymentData.getStatus().toUpperCase()),
+                paymentData.getCard_type(),
                 parseDateTime(paymentData.getStarted_at()),
-                parseDateTime(paymentData.getPaid_at())
-//                parseDateTime(paymentData.getCanceled_at()),
-//                parseDateTime(paymentData.getFailed_at())
+                parseDateTime(paymentData.getPaid_at()),
+                parseDateTime(paymentData.getCanceled_at()),
+                parseDateTime(paymentData.getFailed_at())
         );
-
         return paymentGatewayRepository.save(paymentGateway);
-//        return paymentGateway;
+//        PaymentGateway savedPayment = paymentGatewayRepository.save(paymentGateway);
+//        paymentGatewayRepository.flush();  // 추가
+//        return savedPayment;
     }
-//    @Transactional
-//    public PaymentGateway savePayment(PaymentGateway paymentGateway) {
-//        System.out.println("저장 성공");
-//        return paymentGatewayRepository.save(paymentGateway);
-//    }
 }
