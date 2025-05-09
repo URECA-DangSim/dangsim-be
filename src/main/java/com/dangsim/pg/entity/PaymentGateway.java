@@ -51,7 +51,7 @@ public class PaymentGateway extends BaseEntity {
 	@Column(name = "imp_uid", length = 255)
 	private String impUid;
 
-	@Size(max = 30)
+	@Size(max = 50)
 	// nullable
 	@Column(name = "pg_tid", length = 30)
 	private String pgTid;
@@ -94,13 +94,19 @@ public class PaymentGateway extends BaseEntity {
 	private PaymentGatewayStatus status;
 
 	@Column(name = "requestedAt")
-	private LocalDateTime requestedAt;
+//	private LocalDateTime requestedAt;
+	private LocalDateTime startedAt; // 결제 시작시점
 
 	@Column(name = "approvedAt")
-	private LocalDateTime approvedAt;
+//	private LocalDateTime approvedAt;
+	private LocalDateTime paidAt; // 결제 완료 시점
 
 	@Column(name = "cancelledAt")
 	private LocalDateTime cancelledAt;
+
+	// new!
+	@Column(name = "failedAt")
+	private LocalDateTime failedAt;
 
 
 	@Builder(access = PRIVATE)
@@ -108,7 +114,7 @@ public class PaymentGateway extends BaseEntity {
 	private PaymentGateway(String merchantUid, String impUid, String pgTid, String currency,
 		String method, String cardCompany, String cardNumberMasked,
 		BigDecimal amount, Integer installment, PaymentGatewayStatus status,
-		LocalDateTime requestedAt, LocalDateTime approvedAt, LocalDateTime cancelledAt) {
+		LocalDateTime startedAt, LocalDateTime paidAt, LocalDateTime cancelledAt, LocalDateTime failedAt) {
 
 		this.merchantUid = merchantUid;
 		this.impUid = impUid;
@@ -121,15 +127,16 @@ public class PaymentGateway extends BaseEntity {
 		this.amount = amount;
 		this.installment = (installment != null) ? installment : 0; // installment이 null일 경우 0으로 설정
 		this.status = status;
-		this.requestedAt = requestedAt;
-		this.approvedAt = approvedAt;
+		this.startedAt = startedAt;
+		this.paidAt = paidAt;
 		this.cancelledAt = cancelledAt;
+		this.failedAt = failedAt;
 	}
 
 	public static PaymentGateway of(String merchantUid, String impUid, String pgTid, String currency,
 									String method, String cardCompany, String cardNumberMasked,
 									BigDecimal amount, Integer installment, PaymentGatewayStatus status,
-									LocalDateTime requestedAt, LocalDateTime approvedAt, LocalDateTime cancelledAt) {
+									LocalDateTime startedAt, LocalDateTime paidAt) {
 
 		return PaymentGateway.builder()
 				.merchantUid(merchantUid)
@@ -145,9 +152,10 @@ public class PaymentGateway extends BaseEntity {
 				.installment(installment)
 //				.installment((installment != null) ? installment : 0) // installment이 null일 경우 0으로 설정
 				.status(status)
-				.requestedAt(requestedAt)
-				.approvedAt(approvedAt)
-				.cancelledAt(cancelledAt)
+				.startedAt(startedAt)
+				.paidAt(paidAt)
+//				.cancelledAt(cancelledAt)
+//				.failedAt(failedAt)
 				.build();
 	}
 }
