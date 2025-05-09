@@ -3,11 +3,15 @@ package com.dangsim.jwt;
 import java.nio.charset.StandardCharsets;
 import java.time.Clock;
 import java.util.Date;
+import java.util.Objects;
 
 import javax.crypto.SecretKey;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+
+import com.dangsim.common.exception.runtime.BaseException;
+import com.dangsim.jwt.exception.JwtErrorCode;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
@@ -75,4 +79,14 @@ public class JwtProvider {
 			.parseSignedClaims(token)
 			.getPayload();
 	}
+
+	public Long getUserIdFromToken(String token) {
+		if (Objects.isNull(token) && !validateToken(token)) {
+			throw new BaseException(JwtErrorCode.TOKEN_IS_EMPTY);
+		}
+
+		Claims claims = getClaims(token);
+		return Long.valueOf(claims.getSubject());
+	}
+
 }
