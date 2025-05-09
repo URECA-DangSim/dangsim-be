@@ -90,4 +90,14 @@ public class Payment extends BaseEntity {
 		this.requester = requester;
 		this.perfomer = perfomer;
 	}
+
+	public static Payment of(BigDecimal reward, PaymentStatus status, String merchantUid, Task task, User requester) {
+		return Payment.builder()
+			.reward(reward)
+			.status(status)
+			.merchantUid(merchantUid)
+			.task(task)
+			.requester(requester)
+			.build();
+	}
 }

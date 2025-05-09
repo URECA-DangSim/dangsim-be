@@ -59,9 +59,10 @@ public class TaskController {
 	@GetMapping("/api/tasks")
 	public ResponseEntity<CursorPageResponse<TaskSimpleResponseDto>> getTasksByCursor(
 		@RequestParam(name = "cursor", required = false) String cursor,
-		@RequestParam(name = "size", defaultValue = "20") int size
+		@RequestParam(name = "size", defaultValue = "20") int size,
+		@AuthenticationPrincipal User user
 	) {
-		CursorPageResponse<TaskSimpleResponseDto> response = taskService.getTasksByCursor(cursor, size);
+		CursorPageResponse<TaskSimpleResponseDto> response = taskService.getTasksByCursor(cursor, size, user);
 		return ResponseEntity.ok(response);
 	}
 

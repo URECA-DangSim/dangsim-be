@@ -25,6 +25,8 @@ import com.dangsim.common.exception.runtime.BaseException;
 import com.dangsim.common.fixture.TaskFixture;
 import com.dangsim.common.fixture.UserFixture;
 import com.dangsim.common.util.DateTimeFormatUtils;
+import com.dangsim.payment.entity.Payment;
+import com.dangsim.payment.repository.PaymentRepository;
 import com.dangsim.task.dto.request.TaskRequestDto;
 import com.dangsim.task.dto.response.TaskDeleteResponse;
 import com.dangsim.task.dto.response.TaskDetailsResponseDto;
@@ -42,6 +44,9 @@ public class TaskServiceTest {
 
 	@Mock
 	TaskRepository taskRepository;
+
+	@Mock
+	PaymentRepository paymentRepository;
 
 	@InjectMocks
 	TaskService taskService;
@@ -161,6 +166,7 @@ public class TaskServiceTest {
 		ReflectionTestUtils.setField(task, "id", 1L);
 
 		given(taskRepository.save(any(Task.class))).willReturn(task);
+		given(paymentRepository.save(any(Payment.class))).willReturn(any());
 
 		// when
 		TaskResponseDto responseDto = taskService.createTask(requestDto, user);
@@ -202,20 +208,21 @@ public class TaskServiceTest {
 	@Test
 	void getTasksByCursor_usesFormattedCurrentTimeWhenCursorIsNull() {
 		// given
-		int size = 3;
+		final int size = 3;
 		CursorPageResponse<TaskSimpleResponseDto> expected =
 			new CursorPageResponse<>(List.of(), null, false);
-		given(taskRepository.findTasksByCursor(anyString(), eq(size))).willReturn(expected);
+		given(taskRepository.findTasksByCursor(anyString(), eq(size), any())).willReturn(expected);
 
 		// when
 		CursorPageResponse<TaskSimpleResponseDto> response =
-			taskService.getTasksByCursor(null, size);
+			taskService.getTasksByCursor(null, size, null);
 
 		// then
 		assertThat(response).isSameAs(expected);
 
 		ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
-		verify(taskRepository).findTasksByCursor(captor.capture(), eq(size));
+		ArgumentCaptor<User> captor2 = ArgumentCaptor.forClass(User.class);
+		verify(taskRepository).findTasksByCursor(captor.capture(), eq(size), captor2.capture());
 		String usedCursor = captor.getValue();
 		assertThat(usedCursor).isNotBlank();
 		assertThat(usedCursor).matches("\\d{2}\\.\\d{2}\\.\\d{2} \\d{2}:\\d{2}");
@@ -228,17 +235,18 @@ public class TaskServiceTest {
 		int size = 5;
 		CursorPageResponse<TaskSimpleResponseDto> expected =
 			new CursorPageResponse<>(List.of(), null, false);
-		given(taskRepository.findTasksByCursor(anyString(), eq(size))).willReturn(expected);
+		given(taskRepository.findTasksByCursor(anyString(), eq(size), any())).willReturn(expected);
 
 		// when
 		CursorPageResponse<TaskSimpleResponseDto> response =
-			taskService.getTasksByCursor("", size);
+			taskService.getTasksByCursor("", size, null);
 
 		// then
 		assertThat(response).isSameAs(expected);
 
 		ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
-		verify(taskRepository).findTasksByCursor(captor.capture(), eq(size));
+		ArgumentCaptor<User> captor2 = ArgumentCaptor.forClass(User.class);
+		verify(taskRepository).findTasksByCursor(captor.capture(), eq(size), captor2.capture());
 		String usedCursor = captor.getValue();
 		assertThat(usedCursor).isNotBlank();
 		assertThat(usedCursor).matches("\\d{2}\\.\\d{2}\\.\\d{2} \\d{2}:\\d{2}");
@@ -248,19 +256,20 @@ public class TaskServiceTest {
 	@Test
 	void getTasksByCursor_usesProvidedCursorWhenNotNullOrBlank() {
 		// given
-		String cursor = "25.05.01 15:00";
-		int size = 7;
+		final String cursor = "25.05.01 15:00";
+		final int size = 7;
+		User user = UserFixture.user(Role.USER, BigDecimal.ONE);
 		CursorPageResponse<TaskSimpleResponseDto> expected =
 			new CursorPageResponse<>(List.of(), null, false);
-		given(taskRepository.findTasksByCursor(cursor, size)).willReturn(expected);
+		given(taskRepository.findTasksByCursor(cursor, size, user)).willReturn(expected);
 
 		// when
 		CursorPageResponse<TaskSimpleResponseDto> response =
-			taskService.getTasksByCursor(cursor, size);
+			taskService.getTasksByCursor(cursor, size, user);
 
 		// then
 		assertThat(response).isSameAs(expected);
-		verify(taskRepository).findTasksByCursor(cursor, size);
+		verify(taskRepository).findTasksByCursor(cursor, size, user);
 	}
 
 	@DisplayName("요청자가 해당 심부름에 작성자가 아니라면 예외가 발생한다.")

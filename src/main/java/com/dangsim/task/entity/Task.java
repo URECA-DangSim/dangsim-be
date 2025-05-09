@@ -18,6 +18,7 @@ import com.dangsim.user.entity.User;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
+import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.ForeignKey;
@@ -57,6 +58,7 @@ public class Task extends BaseEntity {
 	private String content;
 
 	@NotNull
+	@Embedded
 	@Column(name = "address", nullable = false)
 	private Address address;
 
