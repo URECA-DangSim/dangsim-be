@@ -34,7 +34,6 @@ public class ChatRoomQueryRepositoryImpl implements ChatRoomQueryRepository {
 		List<ChatRoomSimpleResponse> chatRooms = queryFactory
 			.select(new QChatRoomSimpleResponse(chatRoom, chatMessage, user))
 			.from(chatRoom)
-			.where(chatRoom.requester.id.eq(userId).or(chatRoom.performer.id.eq(userId)))
 			//최근 메시지 조인
 			.leftJoin(lastMessage)
 			.on(lastMessage.chatRoomId.eq(chatRoom.id),
@@ -50,7 +49,10 @@ public class ChatRoomQueryRepositoryImpl implements ChatRoomQueryRepository {
 				chatRoom.requester.id.eq(userId).and(partner.id.eq(chatRoom.requester.id))
 					.or(chatRoom.performer.id.eq(userId).and(partner.id.eq(chatRoom.requester.id)))
 			)
-			.where(cursor != null ? lastMessage.createdAt.lt(DateTimeFormatUtils.parseDateTime(cursor)) : null)
+			.where(
+				chatRoom.requester.id.eq(userId).or(chatRoom.performer.id.eq(userId)),
+				cursor != null ? lastMessage.createdAt.lt(DateTimeFormatUtils.parseDateTime(cursor)) : null
+			)
 			.orderBy(lastMessage.createdAt.desc())
 			.limit(size + 1)
 			.fetch();
