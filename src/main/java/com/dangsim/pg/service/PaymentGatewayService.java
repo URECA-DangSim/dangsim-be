@@ -1,10 +1,15 @@
 package com.dangsim.pg.service;
 
+import com.dangsim.common.exception.runtime.BaseException;
+import com.dangsim.payment.entity.Payment;
+import com.dangsim.payment.repository.PaymentRepository;
 import com.dangsim.pg.dto.InicisResponse;
 import com.dangsim.pg.dto.PortOneTokenResponse;
 import com.dangsim.pg.entity.PaymentGateway;
 import com.dangsim.pg.entity.PaymentGatewayStatus;
+import com.dangsim.pg.exception.PaymentGatewayErrorCode;
 import com.dangsim.pg.repository.PaymentGatewayRepository;
+import com.dangsim.task.entity.Task;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -31,23 +36,24 @@ public class PaymentGatewayService {
 
     private final RestTemplate restTemplate;
 
+    private final PaymentRepository paymentRepository;
     private final PaymentGatewayRepository paymentGatewayRepository;
 
-    // 1. token 요청
     public String getAccessToken() {
-        String url = "https://api.iamport.kr/users/getToken";
+        String url = "https://api.iamport.kr/users/getToken"; // 포트원 토큰 발급 API URL : 여기에 post 요청
 
-        Map<String, String> body = new HashMap<>();
+        Map<String, String> body = new HashMap<>(); // 서버에 보낼 데이터를 담을 Map
         body.put("imp_key", apiKey);
         body.put("imp_secret", apiSecret);
 
         // http 요청 body에 json을 보내기 위해 Java 객체를 JSON 문자열로 변환
+        // portone api는 json 형태를 요구하기 때문에 body를 json 형태로 변환
         ObjectMapper objectMapper = new ObjectMapper();
         String requestBody;
         try {
             requestBody = objectMapper.writeValueAsString(body);
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new BaseException(PaymentGatewayErrorCode.JSON_CONVERT_FAILED);
         }
 
         HttpHeaders headers = new HttpHeaders();
@@ -57,13 +63,16 @@ public class PaymentGatewayService {
         ResponseEntity<PortOneTokenResponse> response = restTemplate.postForEntity(url, entity, PortOneTokenResponse.class);
         // response : http 응답 전체를 감싸는 객체
 
-        // TODO 만약 access_token을 요청했는데 반환값이 code != 0 일 때 예외 처리
+        PortOneTokenResponse responseBody = response.getBody();
+        if (responseBody == null || responseBody.getCode() != 0) {
+            throw new BaseException(PaymentGatewayErrorCode.PAYMENT_VERIFICATION_FAILED);
+        }
 
         return response.getBody().getResponse().getAccess_token();
     }
 
     @Transactional
-    public PaymentGateway verifyPaymentDetail(BigDecimal clientAmount, String impUid) {
+    public void verifyPaymentDetail(String impUid) {
         String token = getAccessToken();
 
         String PORTONE_PAYMENT_LOOKUP_URL = "https://api.iamport.kr/payments/";
@@ -73,19 +82,18 @@ public class PaymentGatewayService {
         headers.setBearerAuth(token);
         HttpEntity<Void> entity = new HttpEntity<>(headers);
 
-        ResponseEntity<InicisResponse> response = restTemplate.exchange(url, HttpMethod.GET, entity, InicisResponse.class); // 포트원에 요청 후 응답받음
+        ResponseEntity<InicisResponse> response = restTemplate.exchange(url, HttpMethod.GET, entity, InicisResponse.class);
 
         InicisResponse.Response paymentData = response.getBody().getResponse();
 
-        // 포트원 서버에서 받은 결제 금액
         BigDecimal portOneAmount = BigDecimal.valueOf(paymentData.getAmount());
 
-        // 1. 프론트에서 받은 금액과 서버에서 조회한 금액 비교
-        if (clientAmount.compareTo(portOneAmount) != 0) {
-            throw new IllegalArgumentException("결제 금액이 일치하지 않습니다.");
-        }
+//        Payment payment = paymentRepository.findById(paymentId)
+//                .orElseThrow(() -> new BaseException(PaymentGatewayErrorCode.PAYMENT_NOT_FOUND));
 
-        // 2. 금액이 같으면 PaymentGateway 엔티티 생성
+        Payment payment = paymentRepository.findByMerchantUid(paymentData.getMerchant_uid())
+                .orElseThrow(() -> new BaseException(PaymentGatewayErrorCode.PAYMENT_NOT_FOUND));
+
         PaymentGateway paymentGateway = PaymentGateway.of(
                 paymentData.getImp_uid(),
                 paymentData.getMerchant_uid(),
@@ -106,8 +114,38 @@ public class PaymentGatewayService {
                 parseDateTimePG(paymentData.getStarted_at()),
                 parseDateTimePG(paymentData.getPaid_at()),
                 paymentData.getCanceled_at() == null ? null : parseDateTimePG(paymentData.getCanceled_at()),
-                parseDateTimePG(paymentData.getFailed_at())
+                parseDateTimePG(paymentData.getFailed_at()),
+                payment
         );
-        return paymentGatewayRepository.save(paymentGateway);
+
+        // 검증 후 엔티티 생성,만약 검증이 안되면 Transaction 롤백
+        validatePaymentAmount(paymentGateway, portOneAmount);
+
+        paymentGatewayRepository.save(paymentGateway);
+    }
+
+    public void validatePaymentAmount(PaymentGateway paymentGateway, BigDecimal portOneAmount) {
+        if (paymentGateway == null) {
+            throw new IllegalArgumentException("PaymentGateway 정보가 없습니다.");
+        }
+
+        Payment payment = paymentGateway.getPayment();
+        if (payment == null) {
+            throw new IllegalArgumentException("PaymentGateway에 연결된 Payment 정보가 없습니다.");
+        }
+
+        Task task = payment.getTask();
+        if (task == null) {
+            throw new IllegalArgumentException("Payment에 연결된 Task 정보가 없습니다.");
+        }
+
+        BigDecimal taskReward = task.getReward();
+        if (taskReward == null || portOneAmount == null) {
+            throw new IllegalArgumentException("Task 리워드 값 또는 결제 금액이 null입니다.");
+        }
+
+        if (taskReward.compareTo(portOneAmount) != 0) {
+            throw new IllegalArgumentException("Task 리워드 금액과 결제 금액이 일치하지 않습니다.");
+        }
     }
 }

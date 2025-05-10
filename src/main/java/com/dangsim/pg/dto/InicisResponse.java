@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class InicisResponse {
 
-    private int code; // 응답코드 - 0이면 정상적인 조회, 아니면 Msg 확인 필요
+    private int code; // 응답코드 - 0이면 정상적인 조회, 0이 아닐경우 msg
     private String message;
     private Response response;
 
