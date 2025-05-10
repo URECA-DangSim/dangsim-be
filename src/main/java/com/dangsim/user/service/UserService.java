@@ -30,10 +30,10 @@ public class UserService {
 			throw new BaseException(UserErrorCode.NICKNAME_DUPLICATED);
 		}
 
-		User managedUser = userRepository.getReferenceById(user.getId());
+		User managedUser = userRepository.findById(user.getId())
+				.orElseThrow(() -> new BaseException(UserErrorCode.USER_NOT_FOUND));
 		managedUser.updateExtraInfo(request.nickname(), Address.from(request.address()));
 
-		user.updateExtraInfo(request.nickname(), Address.from(request.address()));
 		return ExtraInfoResponse.of(true);
 	}
 

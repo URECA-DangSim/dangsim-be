@@ -6,6 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -51,6 +52,15 @@ public class UserController {
 	@GetMapping("/user/profile")
 	public ResponseEntity<UserProfileResponse> getUserProfile(@AuthenticationPrincipal User user) {
 		UserProfileResponse response = userService.getMemberProfile(user);
+		return ResponseEntity.ok(response);
+	}
+
+	/**
+	 * 사용자 프로필 수정
+	 */
+	@PutMapping("/user/extra-info")
+	public ResponseEntity<ExtraInfoResponse> updateExtraInfo(@RequestBody ExtraInfoRequest request, @AuthenticationPrincipal User user) {
+		ExtraInfoResponse response = userService.updateUserExtraInfo(user, request);
 		return ResponseEntity.ok(response);
 	}
 
