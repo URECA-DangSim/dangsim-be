@@ -31,7 +31,7 @@ public class StompChannelInterceptor implements ChannelInterceptor {
 		if (StompCommand.CONNECT.equals(accessor.getCommand())) {
 
 			String header = accessor.getFirstNativeHeader("Authorization");
-			
+
 			if (header == null || !header.startsWith(PREFIX)) {
 				throw new BaseException(InterceptorErrorCode.WRONG_HEADER);
 			}

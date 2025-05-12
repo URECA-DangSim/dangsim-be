@@ -55,19 +55,18 @@ public class ChatRoom extends BaseEntity {
 	private User performer;
 
 	@Builder(access = PRIVATE)
-	private ChatRoom(Task task, User requester, User performer){
+	private ChatRoom(Task task, User requester, User performer) {
 		this.task = task;
 		this.requester = requester;
 		this.performer = performer;
 	}
 
-	public static ChatRoom of (Task task, User requester, User performer){
+	public static ChatRoom of(Task task, User requester, User performer) {
 		return ChatRoom.builder()
-				.task(task)
-				.requester(requester)
-				.performer(performer)
-				.build();
+			.task(task)
+			.requester(requester)
+			.performer(performer)
+			.build();
 	}
-
 
 }
