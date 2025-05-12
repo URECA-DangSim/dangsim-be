@@ -20,6 +20,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
@@ -64,7 +65,7 @@ public class Payment extends BaseEntity {
 	private Task task;
 
 	@NotNull
-	@OneToOne(fetch = FetchType.LAZY)
+	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(
 		name = "requester_id",
 		nullable = false,
@@ -72,8 +73,7 @@ public class Payment extends BaseEntity {
 	)
 	private User requester;
 
-	@NotNull
-	@OneToOne(fetch = FetchType.LAZY)
+	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(
 		name = "performer_id",
 		foreignKey = @ForeignKey(name = "fk_payment_performer")
