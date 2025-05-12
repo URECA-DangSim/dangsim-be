@@ -79,4 +79,10 @@ public class User extends BaseEntity {
 	public void updateProfileImage(String profileImage) {
 		this.profileImage = profileImage;
 	}
+
+	public void updateExtraInfo(String nickname, Address address) {
+		this.nickname = nickname;
+		this.address = address;
+		this.role = Role.USER;
+	}
 }
