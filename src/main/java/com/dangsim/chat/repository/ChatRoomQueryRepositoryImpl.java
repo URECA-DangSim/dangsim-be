@@ -3,6 +3,7 @@ package com.dangsim.chat.repository;
 import static com.dangsim.chat.entity.QChatMessage.*;
 import static com.dangsim.chat.entity.QChatRoom.*;
 
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -18,6 +19,8 @@ import com.dangsim.chat.entity.QChatMessage;
 import com.dangsim.common.CursorPageResponse;
 import com.dangsim.common.util.DateTimeFormatUtils;
 import com.dangsim.user.entity.QUser;
+import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.core.types.dsl.DateTimePath;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 
@@ -55,7 +58,7 @@ public class ChatRoomQueryRepositoryImpl implements ChatRoomQueryRepository {
 			)
 			.where(
 				chatRoom.requester.id.eq(userId).or(chatRoom.performer.id.eq(userId)),
-				cursor != null ? lastMessage.createdAt.lt(DateTimeFormatUtils.parseDateTime(cursor)) : null
+				isBeforeCursor(lastMessage.createdAt, cursor)
 			)
 			.orderBy(lastMessage.createdAt.desc())
 			.limit(size + 1)
@@ -77,7 +80,7 @@ public class ChatRoomQueryRepositoryImpl implements ChatRoomQueryRepository {
 			.from(chatMessage)
 			.where(
 				chatMessage.chatRoomId.eq(chatRoomId),
-				cursor != null ? chatMessage.createdAt.lt(DateTimeFormatUtils.parseDateTime(cursor)) : null
+				isBeforeCursor(chatMessage.createdAt, cursor)
 			)
 			.orderBy(chatMessage.createdAt.desc())
 			.limit(size + 1)
@@ -90,6 +93,13 @@ public class ChatRoomQueryRepositoryImpl implements ChatRoomQueryRepository {
 		ChatRoomDetailResponse detailResponse = new ChatRoomDetailResponse(chatRoomId, pageMessages);
 
 		return new CursorPageResponse<>(Collections.singletonList(detailResponse), nextCursor, hasNext);
+	}
+
+	private BooleanExpression isBeforeCursor(DateTimePath<LocalDateTime> dateTimePath, String cursor) {
+		if (cursor == null) {
+			return null;
+		}
+		return dateTimePath.lt(DateTimeFormatUtils.parseDateTime(cursor));
 	}
 
 	private String getNextCursor(List<ChatRoomSimpleResponse> chatrooms, boolean hasNext) {
