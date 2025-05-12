@@ -66,6 +66,7 @@ public class ChatRoomService {
 		return chatRoomRepository.findChatMessagesByCursor(chatRoomId, cursor, size, userId);
 	}
 
+	@Transactional(readOnly = true)
 	public ChatRoomInfoResponse getChatRoomInfo(Long chatRoomId, Long userId) {
 		ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId)
 			.orElseThrow(() -> new BaseException(ChatRoomErrorCode.NOT_FOUND_CHATROOM));

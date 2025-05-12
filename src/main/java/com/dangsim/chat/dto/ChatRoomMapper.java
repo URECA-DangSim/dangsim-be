@@ -1,5 +1,7 @@
 package com.dangsim.chat.dto;
 
+import static com.dangsim.task.entity.TaskStatus.*;
+
 import java.util.List;
 import java.util.Objects;
 
@@ -9,9 +11,12 @@ import com.dangsim.chat.entity.ChatRoom;
 import com.dangsim.task.dto.response.TaskInfoResponse;
 import com.dangsim.task.entity.Task;
 import com.dangsim.task.entity.TaskImage;
-import com.dangsim.task.entity.TaskStatus;
 import com.dangsim.user.entity.User;
 
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
+
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class ChatRoomMapper {
 
 	public static ChatRoomResponse toChatRoomResponse(
@@ -42,7 +47,7 @@ public class ChatRoomMapper {
 	}
 
 	public static String getThumbNail(List<TaskImage> imageUrls) {
-		if (Objects.isNull(imageUrls)) {
+		if (Objects.isNull(imageUrls) || imageUrls.isEmpty()) {
 			return "";
 		}
 
@@ -50,7 +55,7 @@ public class ChatRoomMapper {
 	}
 
 	public static boolean isCompletedTask(Task task) {
-		if (task.getStatus() == TaskStatus.TASK_COMPLETE) {
+		if (Objects.equals(task.getStatus(), TASK_COMPLETE)) {
 			return false;
 		}
 		return true;
