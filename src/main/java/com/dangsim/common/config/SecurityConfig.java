@@ -24,7 +24,9 @@ public class SecurityConfig {
 			})
 			.formLogin(form -> form.disable())// CORS 기본 설정 활성화
 			.authorizeHttpRequests(auth -> auth
-				.anyRequest().permitAll()
+				.requestMatchers("/api/auth/**").permitAll()
+				.requestMatchers("/api/users/user/extra-info").hasRole("TMP_USER")
+				.anyRequest().authenticated()
 			).addFilterBefore(
 				new JwtAuthenticationFilter(jwtProvider, userRepository),
 				UsernamePasswordAuthenticationFilter.class
