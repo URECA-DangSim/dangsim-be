@@ -19,6 +19,7 @@ public class StompChannelInterceptor implements ChannelInterceptor {
 
 	private final JwtProvider jwtProvider;
 	private final String PREFIX = "Bearer ";
+	private final String HEADERNAME = "Authorization";
 
 	public StompChannelInterceptor(JwtProvider jwtProvider) {
 		this.jwtProvider = jwtProvider;
@@ -30,7 +31,7 @@ public class StompChannelInterceptor implements ChannelInterceptor {
 
 		if (StompCommand.CONNECT.equals(accessor.getCommand())) {
 
-			String header = accessor.getFirstNativeHeader("Authorization");
+			String header = accessor.getFirstNativeHeader(HEADERNAME);
 
 			if (header == null || !header.startsWith(PREFIX)) {
 				throw new BaseException(InterceptorErrorCode.WRONG_HEADER);

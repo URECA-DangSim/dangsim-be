@@ -14,7 +14,6 @@ import com.dangsim.chat.repository.ChatMessageRepository;
 import com.dangsim.chat.repository.ChatRoomRepository;
 import com.dangsim.common.exception.runtime.BaseException;
 
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -25,8 +24,10 @@ public class ChatMessageService {
 	private final ChatRoomRepository chatRoomRepository;
 	private final SimpMessagingTemplate messagingTemplate;
 
+	private final String DESTINATION = "/sub/chat-rooms/";
+
 	@Transactional
-	public void createChatMessage(@Valid CreateChatMessageRequest request, Long userId, Long chatRoomId) {
+	public void createChatMessage(CreateChatMessageRequest request, Long userId, Long chatRoomId) {
 
 		ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId).orElseThrow(
 			() -> new BaseException(ChatRoomErrorCode.NOT_FOUND_CHATROOM)
@@ -42,7 +43,7 @@ public class ChatMessageService {
 		ChatMessageResponse response = ChatMessageMapper.toChatMessageResponse(savedChatMessage);
 
 		messagingTemplate.convertAndSend(
-			"/sub/chat-rooms/" + chatRoomId,
+			DESTINATION + chatRoomId,
 			response
 		);
 
