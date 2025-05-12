@@ -2,6 +2,7 @@ package com.dangsim.chat.dto.response;
 
 import com.dangsim.chat.entity.ChatMessage;
 import com.dangsim.chat.entity.ChatRoom;
+import com.dangsim.common.util.DateTimeFormatUtils;
 import com.dangsim.user.entity.User;
 import com.querydsl.core.annotations.QueryProjection;
 
@@ -21,10 +22,8 @@ public record ChatRoomSimpleResponse(
 			partner.getId(),
 			partner.getNickname(),
 			lastChatMessage.getMessage(),
-			lastChatMessage.getCreatedAt().toString(),
+			DateTimeFormatUtils.formatDateTime(lastChatMessage.getCreatedAt()),
 			lastChatMessage.isRead()
 		);
-
 	}
-
 }
