@@ -1,7 +1,5 @@
 package com.dangsim.user.controller;
 
-import java.util.Map;
-
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -13,11 +11,13 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.dangsim.user.dto.request.ExtraInfoRequest;
+import com.dangsim.user.dto.response.CheckNicknameResponse;
 import com.dangsim.user.dto.response.ExtraInfoResponse;
 import com.dangsim.user.dto.response.UserProfileResponse;
 import com.dangsim.user.entity.User;
 import com.dangsim.user.service.UserService;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -31,16 +31,16 @@ public class UserController {
 	 * 닉네임 중복 검사
 	 */
 	@GetMapping("/user/check-nickname")
-	public ResponseEntity<Map<String, Boolean>> checkNickname(@RequestParam String nickname) {
-		boolean isDuplicated = userService.isNicknameDuplicated(nickname);
-		return ResponseEntity.ok(Map.of("isDuplicated", isDuplicated));
+	public ResponseEntity<CheckNicknameResponse> checkNickname(@RequestParam String nickname) {
+		CheckNicknameResponse response = userService.isNicknameDuplicated(nickname);
+		return ResponseEntity.ok(response);
 	}
 
 	/**
 	 * 추가 정보 입력
 	 */
 	@PostMapping("/user/extra-info")
-	public ResponseEntity<ExtraInfoResponse> inputExtraInfo(@RequestBody ExtraInfoRequest request,
+	public ResponseEntity<ExtraInfoResponse> inputExtraInfo(@Valid @RequestBody ExtraInfoRequest request,
 		@AuthenticationPrincipal User user) {
 		ExtraInfoResponse response = userService.updateUserExtraInfo(user, request);
 		return ResponseEntity.ok(response);
@@ -59,7 +59,8 @@ public class UserController {
 	 * 사용자 프로필 수정
 	 */
 	@PutMapping("/user/extra-info")
-	public ResponseEntity<ExtraInfoResponse> updateExtraInfo(@RequestBody ExtraInfoRequest request, @AuthenticationPrincipal User user) {
+	public ResponseEntity<ExtraInfoResponse> updateExtraInfo(@RequestBody ExtraInfoRequest request,
+		@AuthenticationPrincipal User user) {
 		ExtraInfoResponse response = userService.updateUserExtraInfo(user, request);
 		return ResponseEntity.ok(response);
 	}
