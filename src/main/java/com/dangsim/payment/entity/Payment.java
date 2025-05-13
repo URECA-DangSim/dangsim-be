@@ -78,17 +78,17 @@ public class Payment extends BaseEntity {
 		name = "performer_id",
 		foreignKey = @ForeignKey(name = "fk_payment_performer")
 	)
-	private User perfomer;
+	private User performer;
 
 	@Builder(access = PRIVATE)
 	private Payment(BigDecimal reward, PaymentStatus status, String merchantUid,
-		Task task, User requester, User perfomer) {
+		Task task, User requester, User performer) {
 		this.reward = reward;
 		this.status = status;
 		this.merchantUid = merchantUid;
 		this.task = task;
 		this.requester = requester;
-		this.perfomer = perfomer;
+		this.performer = performer;
 	}
 
 	public static Payment of(BigDecimal reward, PaymentStatus status, String merchantUid, Task task, User requester) {
