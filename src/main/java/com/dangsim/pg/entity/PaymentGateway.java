@@ -1,18 +1,28 @@
 package com.dangsim.pg.entity;
 
-import static jakarta.persistence.EnumType.STRING;
+import static jakarta.persistence.EnumType.*;
 import static lombok.AccessLevel.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-import com.dangsim.payment.entity.Payment;
-import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
 import org.hibernate.annotations.Check;
 
 import com.dangsim.common.entity.BaseEntity;
+import com.dangsim.payment.entity.Payment;
 
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.ForeignKey;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Builder;
 import lombok.Getter;
@@ -31,23 +41,23 @@ public class PaymentGateway extends BaseEntity {
 	private Long id;
 
 	@Size(max = 255)
-//	@Nullable
+	//	@Nullable
 	@Column(name = "imp_uid", length = 255)
 	private String impUid;
 
 	@Size(max = 40)
-//	@Nullable
+	//	@Nullable
 	@Column(name = "merchant_uid", length = 40, unique = true)
 	private String merchantUid;
 
 	@Size(max = 30)
-//	@NotNull
+	//	@NotNull
 	// nullable
 	@Column(name = "pay_method", length = 30)
 	private String payMethod;
 
 	@Size(max = 30)
-//	@NotNull
+	//	@NotNull
 	@Column(name = "pg_provider", length = 30)
 	private String pgProvider;
 
@@ -66,9 +76,9 @@ public class PaymentGateway extends BaseEntity {
 	@NotNull
 	@OneToOne(fetch = FetchType.LAZY)
 	@JoinColumn(
-			name = "payment_id",
-			nullable = false,
-			foreignKey = @ForeignKey(name = "fk_pg_payment")
+		name = "payment_id",
+		nullable = false,
+		foreignKey = @ForeignKey(name = "fk_pg_payment")
 	)
 	private Payment payment;
 
@@ -77,17 +87,17 @@ public class PaymentGateway extends BaseEntity {
 	private String currency;
 
 	@Size(max = 30)
-//	@NotNull
+	//	@NotNull
 	@Column(name = "apply_num", length = 30)
 	private String applyNum;
 
 	@Size(max = 30)
-//	@NotNull
+	//	@NotNull
 	@Column(name = "buyer_name", length = 30)
 	private String buyerName;
 
 	@Size(max = 10)
-//	@NotNull
+	//	@NotNull
 	@Column(name = "card_code")
 	private String cardCode;
 
@@ -122,11 +132,11 @@ public class PaymentGateway extends BaseEntity {
 
 	@Builder(access = PRIVATE)
 	private PaymentGateway(String impUid, String merchantUid, String payMethod, String pgProvider,
-						   String pgTid, String pgId, BigDecimal amount, String currency,
-						   String applyNum, String buyerName, String cardCode, String cardName,
-						   String cardQuota, String cardNumber, PaymentGatewayStatus status, String cardType,
-						   LocalDateTime startedAt, LocalDateTime paidAt, LocalDateTime canceledAt, LocalDateTime failedAt,
-						   Payment payment) {
+		String pgTid, String pgId, BigDecimal amount, String currency,
+		String applyNum, String buyerName, String cardCode, String cardName,
+		String cardQuota, String cardNumber, PaymentGatewayStatus status, String cardType,
+		LocalDateTime startedAt, LocalDateTime paidAt, LocalDateTime canceledAt, LocalDateTime failedAt,
+		Payment payment) {
 		this.impUid = impUid;
 		this.merchantUid = merchantUid;
 		this.payMethod = payMethod;
@@ -151,34 +161,34 @@ public class PaymentGateway extends BaseEntity {
 	}
 
 	public static PaymentGateway of(String impUid, String merchantUid, String payMethod, String pgProvider,
-									String pgTid, String pgId, BigDecimal amount, String currency,
-									String applyNum, String buyerName, String cardCode, String cardName,
-									String cardQuota, String cardNumber, PaymentGatewayStatus status, String cardType,
-									LocalDateTime startedAt, LocalDateTime paidAt, LocalDateTime canceledAt, LocalDateTime failedAt,
-									Payment payment) {
+		String pgTid, String pgId, BigDecimal amount, String currency,
+		String applyNum, String buyerName, String cardCode, String cardName,
+		String cardQuota, String cardNumber, PaymentGatewayStatus status, String cardType,
+		LocalDateTime startedAt, LocalDateTime paidAt, LocalDateTime canceledAt, LocalDateTime failedAt,
+		Payment payment) {
 
 		return PaymentGateway.builder()
-				.impUid(impUid)
-				.merchantUid(merchantUid)
-				.payMethod(payMethod)
-				.pgProvider(pgProvider)
-				.pgTid(pgTid)
-				.pgId(pgId)
-				.amount(amount)
-				.currency(currency)
-				.applyNum(applyNum)
-				.buyerName(buyerName)
-				.cardCode(cardCode)
-				.cardName(cardName)
-				.cardQuota(cardQuota)
-				.cardNumber(cardNumber)
-				.status(status)
-				.cardType(cardType)
-				.startedAt(startedAt)
-				.paidAt(paidAt)
-				.canceledAt(canceledAt)
-				.failedAt(failedAt)
-				.payment(payment)
-				.build();
+			.impUid(impUid)
+			.merchantUid(merchantUid)
+			.payMethod(payMethod)
+			.pgProvider(pgProvider)
+			.pgTid(pgTid)
+			.pgId(pgId)
+			.amount(amount)
+			.currency(currency)
+			.applyNum(applyNum)
+			.buyerName(buyerName)
+			.cardCode(cardCode)
+			.cardName(cardName)
+			.cardQuota(cardQuota)
+			.cardNumber(cardNumber)
+			.status(status)
+			.cardType(cardType)
+			.startedAt(startedAt)
+			.paidAt(paidAt)
+			.canceledAt(canceledAt)
+			.failedAt(failedAt)
+			.payment(payment)
+			.build();
 	}
 }
