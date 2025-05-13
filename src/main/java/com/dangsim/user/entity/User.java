@@ -86,7 +86,7 @@ public class User extends BaseEntity {
 		this.role = Role.USER;
 	}
 
-    public void updateReward(BigDecimal reward) {
+	public void updateReward(BigDecimal reward) {
 		this.reward = reward;
-    }
+	}
 }

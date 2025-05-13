@@ -20,6 +20,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
@@ -57,31 +58,31 @@ public class Payment extends BaseEntity {
 	@NotNull
 	@OneToOne(fetch = FetchType.LAZY)
 	@JoinColumn(
-		name = "task_id",
-		nullable = false,
-		foreignKey = @ForeignKey(name = "fk_payment_task")
+			name = "task_id",
+			nullable = false,
+			foreignKey = @ForeignKey(name = "fk_payment_task")
 	)
 	private Task task;
 
 	@NotNull
-	@OneToOne(fetch = FetchType.LAZY)
+	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(
-		name = "requester_id",
-		nullable = false,
-		foreignKey = @ForeignKey(name = "fk_payment_requester")
+			name = "requester_id",
+			nullable = false,
+			foreignKey = @ForeignKey(name = "fk_payment_requester")
 	)
 	private User requester;
 
-	@OneToOne(fetch = FetchType.LAZY)
+	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(
-		name = "performer_id",
-		foreignKey = @ForeignKey(name = "fk_payment_performer")
+			name = "performer_id",
+			foreignKey = @ForeignKey(name = "fk_payment_performer")
 	)
 	private User perfomer;
 
 	@Builder(access = PRIVATE)
 	private Payment(BigDecimal reward, PaymentStatus status, String merchantUid,
-		Task task, User requester, User perfomer) {
+					Task task, User requester, User perfomer) {
 		this.reward = reward;
 		this.status = status;
 		this.merchantUid = merchantUid;
@@ -92,11 +93,11 @@ public class Payment extends BaseEntity {
 
 	public static Payment of(BigDecimal reward, PaymentStatus status, String merchantUid, Task task, User requester) {
 		return Payment.builder()
-			.reward(reward)
-			.status(status)
-			.merchantUid(merchantUid)
-			.task(task)
-			.requester(requester)
-			.build();
+				.reward(reward)
+				.status(status)
+				.merchantUid(merchantUid)
+				.task(task)
+				.requester(requester)
+				.build();
 	}
 }
