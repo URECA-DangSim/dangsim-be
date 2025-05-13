@@ -72,6 +72,7 @@ public class RewardRefundEntity {
         this.bankAccount = bankAccount;
         this.holderName = holderName;
         this.status = status;
+        this.requestedAt = LocalDateTime.now();
     }
 
     public static RewardRefundEntity of(User user, BigDecimal amount, String bankName, String bankAccount, String holderName, RewardRefundStatus status) {
@@ -82,6 +83,7 @@ public class RewardRefundEntity {
                 .bankAccount(bankAccount)
                 .holderName(holderName)
                 .status(status)
+                .requestedAt(LocalDateTime.now())
                 .build();
     }
 }

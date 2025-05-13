@@ -17,7 +17,7 @@ public class RewardRefundController {
 
     private final RewardRefundService rewardRefundServiceService;
 
-    @PostMapping("api/users/user/reward")
+    @PostMapping("/api/users/user/reward")
     public ResponseEntity<RewardRefundResponse> requestReward(@RequestBody RewardRefundRequest requestDto, @AuthenticationPrincipal User user) {
 
         rewardRefundServiceService.requestRefund(user.getId(), requestDto);
