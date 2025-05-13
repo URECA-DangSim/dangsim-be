@@ -28,7 +28,7 @@ public class RewardRefundService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new BaseException(REFUND_USER_NOT_FOUND));
 
-        BigDecimal requestAmount = BigDecimal.valueOf(requestDto.getAmount());
+        BigDecimal requestAmount = requestDto.getAmount();
 
         if (requestAmount.compareTo(BigDecimal.ZERO) <= 0) {
             throw new BaseException(REFUND_AMOUNT_ZERO);

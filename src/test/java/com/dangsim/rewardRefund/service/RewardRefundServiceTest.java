@@ -42,7 +42,12 @@ class RewardRefundServiceTest {
     void throwExceptionWhenUserNotFound() {
         // given
         Long userId = 1L;
-        RewardRefundRequest request = new RewardRefundRequest(1000, "은행", "123-456", "홍길동");
+        BigDecimal requestAmount = BigDecimal.valueOf(1000);
+        final String BANK_NAME = "은행";
+        final String ACCOUNT_NUMBER = "123-456";
+        final String ACCOUNT_HOLDER = "홍길동";
+
+        RewardRefundRequest request = new RewardRefundRequest(requestAmount, BANK_NAME, ACCOUNT_NUMBER, ACCOUNT_HOLDER);
 
         given(userRepository.findById(userId)).willReturn(Optional.empty());
 
@@ -57,8 +62,13 @@ class RewardRefundServiceTest {
     void throwExceptionWhenAmountIsZeroOrLess() {
         // given
         Long userId = 1L;
+        BigDecimal requestAmount = BigDecimal.valueOf(0);
+        final String BANK_NAME = "은행";
+        final String ACCOUNT_NUMBER = "123-456";
+        final String ACCOUNT_HOLDER = "홍길동";
         User user = UserFixture.user(Role.USER, BigDecimal.valueOf(5000));
-        RewardRefundRequest request = new RewardRefundRequest(0, "은행", "123-456", "홍길동");
+
+        RewardRefundRequest request = new RewardRefundRequest(requestAmount, BANK_NAME, ACCOUNT_NUMBER, ACCOUNT_HOLDER);
 
         given(userRepository.findById(userId)).willReturn(Optional.of(user));
 
@@ -73,8 +83,13 @@ class RewardRefundServiceTest {
     void throwExceptionWhenAmountExceedsReward() {
         // given
         Long userId = 1L;
+        BigDecimal requestAmount = BigDecimal.valueOf(5000);
+        final String BANK_NAME = "은행";
+        final String ACCOUNT_NUMBER = "123-456";
+        final String ACCOUNT_HOLDER = "홍길동";
+
         User user = UserFixture.user(Role.USER, BigDecimal.valueOf(3000));
-        RewardRefundRequest request = new RewardRefundRequest(5000, "은행", "123-456", "홍길동");
+        RewardRefundRequest request = new RewardRefundRequest(requestAmount, BANK_NAME, ACCOUNT_NUMBER, ACCOUNT_HOLDER);
 
         given(userRepository.findById(userId)).willReturn(Optional.of(user));
 
@@ -91,9 +106,12 @@ class RewardRefundServiceTest {
         Long userId = 1L;
         BigDecimal initialReward = BigDecimal.valueOf(10000);
         BigDecimal requestAmount = BigDecimal.valueOf(5000);
+        final String BANK_NAME = "은행";
+        final String ACCOUNT_NUMBER = "123-456";
+        final String ACCOUNT_HOLDER = "홍길동";
 
         User user = UserFixture.user(Role.USER, initialReward);
-        RewardRefundRequest request = new RewardRefundRequest(5000, "은행", "123-456", "홍길동");
+        RewardRefundRequest request = new RewardRefundRequest(requestAmount, BANK_NAME, ACCOUNT_NUMBER, ACCOUNT_HOLDER);
 
         given(userRepository.findById(userId)).willReturn(Optional.of(user));
         given(rewardRefundRepository.save(any(RewardRefundEntity.class))).willAnswer(invocation -> invocation.getArgument(0));

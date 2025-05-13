@@ -10,5 +10,5 @@ public enum RewardRefundStatus {
     PENDING("대기중"),
     SUCCESS("완료");
 
-    private final String rrStatus;
+    private final String rewardRefundStatus;
 }

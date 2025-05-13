@@ -59,7 +59,7 @@ public class RewardRefundEntity {
 
     @NotNull
     @Column(name = "request_at")
-    private LocalDateTime requestedAt = LocalDateTime.now();
+    private LocalDateTime requestedAt;
 
     @Column(name = "completed_at")
     private LocalDateTime completedAt;
