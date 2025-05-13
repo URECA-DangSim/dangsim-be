@@ -4,6 +4,8 @@ import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.BDDMockito.*;
 
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 import org.junit.jupiter.api.DisplayName;
@@ -14,10 +16,14 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 
+import com.dangsim.common.CursorPageResponse;
 import com.dangsim.common.exception.runtime.BaseException;
+import com.dangsim.common.fixture.UserFixture;
+import com.dangsim.common.util.DateTimeFormatUtils;
 import com.dangsim.user.dto.request.ExtraInfoRequest;
 import com.dangsim.user.dto.response.ExtraInfoResponse;
 import com.dangsim.user.dto.response.UserProfileResponse;
+import com.dangsim.user.dto.response.UserTaskResponse;
 import com.dangsim.user.entity.Address;
 import com.dangsim.user.entity.Role;
 import com.dangsim.user.entity.User;
@@ -102,4 +108,38 @@ class UserServiceTest {
 		assertThat(response.address()).isEqualTo(ADDRESS);
 		assertThat(response.profileImage()).isEqualTo(PROFILE_IMAGE);
 	}
+
+	@DisplayName("유저의 심부름 요청 내역을 조회한다. - 커서 없음")
+	@Test
+	void getRequestedTasksWithNoCursor() {
+		// given
+		User user = UserFixture.user(Role.USER, BigDecimal.ONE);
+		CursorPageResponse<UserTaskResponse> mockResponse = new CursorPageResponse<>(null, null, false);
+
+		given(userRepository.findRequestedTasksByCursor(anyString(), anyInt(), any())).willReturn(mockResponse);
+
+		// when
+		CursorPageResponse<UserTaskResponse> response = userService.getRequestedTasks(null, 5, user);
+
+		// then
+		assertThat(response).isEqualTo(mockResponse);
+	}
+
+	@DisplayName("유저의 심부름 수행 내역을 조회한다. - 커서 제공됨")
+	@Test
+	void getPerformedTasksWithCursor() {
+		// given
+		User user = UserFixture.user(Role.USER, BigDecimal.ONE);
+		String cursor = DateTimeFormatUtils.formatDateTime(LocalDateTime.now());
+		CursorPageResponse<UserTaskResponse> mockResponse = new CursorPageResponse<>(null, null, false);
+
+		given(userRepository.findPerformedTasksByCursor(cursor, 10, user)).willReturn(mockResponse);
+
+		// when
+		CursorPageResponse<UserTaskResponse> response = userService.getPerformedTasks(cursor, 10, user);
+
+		// then
+		assertThat(response).isEqualTo(mockResponse);
+	}
+
 }
