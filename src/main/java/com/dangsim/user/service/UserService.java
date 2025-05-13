@@ -1,14 +1,22 @@
 package com.dangsim.user.service;
 
+import java.time.LocalDateTime;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
+import com.dangsim.common.CursorPageResponse;
 import com.dangsim.common.exception.runtime.BaseException;
+import com.dangsim.common.util.DateTimeFormatUtils;
+import com.dangsim.task.dto.response.TaskSimpleResponseDto;
+import com.dangsim.task.repository.TaskRepository;
 import com.dangsim.user.dto.UserMapper;
 import com.dangsim.user.dto.request.ExtraInfoRequest;
 import com.dangsim.user.dto.response.CheckNicknameResponse;
 import com.dangsim.user.dto.response.ExtraInfoResponse;
 import com.dangsim.user.dto.response.UserProfileResponse;
+import com.dangsim.user.dto.response.UserTaskResponse;
 import com.dangsim.user.entity.Address;
 import com.dangsim.user.entity.User;
 import com.dangsim.user.exception.UserErrorCode;
@@ -51,6 +59,20 @@ public class UserService {
 	@Transactional(readOnly = true)
 	public UserProfileResponse getMemberProfile(User user) {
 		return UserMapper.toUserProfileResponse(user);
+	}
+
+	public CursorPageResponse<UserTaskResponse> getRequestedTasks(String cursor, int size, User user) {
+		if (!StringUtils.hasText(cursor)) {
+			cursor = DateTimeFormatUtils.formatDateTime(LocalDateTime.now());
+		}
+		return userRepository.findRequestedTasksByCursor(cursor, size, user);
+	}
+
+	public CursorPageResponse<UserTaskResponse> getPerformedTasks(String cursor, int size, User user) {
+		if (!StringUtils.hasText(cursor)) {
+			cursor = DateTimeFormatUtils.formatDateTime(LocalDateTime.now());
+		}
+		return userRepository.findPerformedTasksByCursor(cursor, size, user);
 	}
 
 }

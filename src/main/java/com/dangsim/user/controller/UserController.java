@@ -10,10 +10,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.dangsim.common.CursorPageResponse;
+import com.dangsim.task.dto.response.TaskSimpleResponseDto;
+import com.dangsim.task.entity.Task;
 import com.dangsim.user.dto.request.ExtraInfoRequest;
 import com.dangsim.user.dto.response.CheckNicknameResponse;
 import com.dangsim.user.dto.response.ExtraInfoResponse;
 import com.dangsim.user.dto.response.UserProfileResponse;
+import com.dangsim.user.dto.response.UserTaskResponse;
 import com.dangsim.user.entity.User;
 import com.dangsim.user.service.UserService;
 
@@ -65,4 +69,29 @@ public class UserController {
 		return ResponseEntity.ok(response);
 	}
 
+	/**
+	 * 심부름 요청 내역
+	 */
+	@GetMapping("/tasks/requested")
+	public ResponseEntity<CursorPageResponse<UserTaskResponse>> getRequestedTasks(
+		@RequestParam(name = "cursor", required = false) String cursor,
+		@RequestParam(name = "size", defaultValue = "20") int size,
+		@AuthenticationPrincipal User user
+	){
+		CursorPageResponse<UserTaskResponse> response = userService.getRequestedTasks(cursor, size, user);
+		return ResponseEntity.ok(response);
+	}
+
+	/**
+	 * 심부름 수행 내역
+	 */
+	@GetMapping("/tasks/performed")
+	public ResponseEntity<CursorPageResponse<UserTaskResponse>> getPerformedTasks(
+		@RequestParam(name = "cursor", required = false) String cursor,
+		@RequestParam(name = "size", defaultValue = "20") int size,
+		@AuthenticationPrincipal User user
+	){
+		CursorPageResponse<UserTaskResponse> response = userService.getPerformedTasks(cursor, size, user);
+		return ResponseEntity.ok(response);
+	}
 }
