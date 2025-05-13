@@ -61,22 +61,32 @@ public class User extends BaseEntity {
 
 	public static User of(Role role, BigDecimal reward) {
 		return User.builder()
-			.role(role)
-			.reward(reward)
-			.build();
+				.role(role)
+				.reward(reward)
+				.build();
 	}
 
 	public static User of(String profileImage) {
 		return User.builder()
-			.nickname(null)  // 아직 미정
-			.profileImage(profileImage)
-			.address(null)   // 아직 미정
-			.role(Role.TMP_USER)
-			.reward(BigDecimal.ZERO)
-			.build();
+				.nickname(null)  // 아직 미정
+				.profileImage(profileImage)
+				.address(null)   // 아직 미정
+				.role(Role.TMP_USER)
+				.reward(BigDecimal.ZERO)
+				.build();
 	}
 
 	public void updateProfileImage(String profileImage) {
 		this.profileImage = profileImage;
 	}
+
+	public void updateExtraInfo(String nickname, Address address) {
+		this.nickname = nickname;
+		this.address = address;
+		this.role = Role.USER;
+	}
+
+    public void updateReward(BigDecimal reward) {
+		this.reward = reward;
+    }
 }

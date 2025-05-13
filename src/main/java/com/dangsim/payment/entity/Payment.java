@@ -72,7 +72,6 @@ public class Payment extends BaseEntity {
 	)
 	private User requester;
 
-	@NotNull
 	@OneToOne(fetch = FetchType.LAZY)
 	@JoinColumn(
 		name = "performer_id",

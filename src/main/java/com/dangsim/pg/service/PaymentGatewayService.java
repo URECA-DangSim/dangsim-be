@@ -61,7 +61,6 @@ public class PaymentGatewayService {
         HttpEntity<String> entity = new HttpEntity<>(requestBody, headers);
 
         ResponseEntity<PortOneTokenResponse> response = restTemplate.postForEntity(url, entity, PortOneTokenResponse.class);
-        // response : http 응답 전체를 감싸는 객체
 
         PortOneTokenResponse responseBody = response.getBody();
         if (responseBody == null || responseBody.getCode() != 0) {
@@ -87,9 +86,6 @@ public class PaymentGatewayService {
         InicisResponse.Response paymentData = response.getBody().getResponse();
 
         BigDecimal portOneAmount = BigDecimal.valueOf(paymentData.getAmount());
-
-//        Payment payment = paymentRepository.findById(paymentId)
-//                .orElseThrow(() -> new BaseException(PaymentGatewayErrorCode.PAYMENT_NOT_FOUND));
 
         Payment payment = paymentRepository.findByMerchantUid(paymentData.getMerchant_uid())
                 .orElseThrow(() -> new BaseException(PaymentGatewayErrorCode.PAYMENT_NOT_FOUND));
@@ -118,9 +114,7 @@ public class PaymentGatewayService {
                 payment
         );
 
-        // 검증 후 엔티티 생성,만약 검증이 안되면 Transaction 롤백
         validatePaymentAmount(paymentGateway, portOneAmount);
-
         paymentGatewayRepository.save(paymentGateway);
     }
 
