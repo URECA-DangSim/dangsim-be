@@ -10,14 +10,14 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 public class PortOneTokenResponse {
-    private int code;
-    private String message;
-    private TokenResponse response;
+	private int code;
+	private String message;
+	private TokenResponse response;
 
-    @Getter
-    public static class TokenResponse {
-        private String access_token;
-        private long now;
-        private long expired_at;
-    }
+	@Getter
+	public static class TokenResponse {
+		private String access_token;
+		private long now;
+		private long expired_at;
+	}
 }

@@ -20,7 +20,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.dangsim.common.exception.runtime.BaseException;
 import com.dangsim.common.fixture.UserFixture;
-import com.dangsim.file.dto.request.UploadFilesRequestDto;
 import com.dangsim.file.dto.response.UploadFilesResponseDto;
 import com.dangsim.file.exception.FileException;
 import com.dangsim.user.entity.Role;
@@ -36,12 +35,12 @@ public class FileServiceTest {
 	@Test
 	void throwEmptyFileExceptionWhenFilesIsNull() {
 		// given
-		UploadFilesRequestDto requestDto = new UploadFilesRequestDto(null);
+		List<MultipartFile> files = null;
 		User user = UserFixture.user(Role.ADMIN, BigDecimal.ONE);
 		ReflectionTestUtils.setField(user, "id", 1L);
 
 		// when		// then
-		assertThatThrownBy(() -> fileService.uploadFromTask(requestDto, user))
+		assertThatThrownBy(() -> fileService.uploadFromTask(files, user))
 			.isInstanceOf(BaseException.class)
 			.hasMessage(FileException.EMPTY_FILE.getMessage());
 	}
@@ -50,12 +49,12 @@ public class FileServiceTest {
 	@Test
 	void throwEmptyFileExceptionWhenFilesIsEmpty() {
 		// given
-		UploadFilesRequestDto requestDto = new UploadFilesRequestDto(Collections.emptyList());
+		List<MultipartFile> files = Collections.emptyList();
 		User user = UserFixture.user(Role.ADMIN, BigDecimal.ONE);
 		ReflectionTestUtils.setField(user, "id", 1L);
 
 		// when		// then
-		assertThatThrownBy(() -> fileService.uploadFromTask(requestDto, user))
+		assertThatThrownBy(() -> fileService.uploadFromTask(files, user))
 			.isInstanceOf(BaseException.class)
 			.hasMessage(FileException.EMPTY_FILE.getMessage());
 	}
@@ -69,13 +68,13 @@ public class FileServiceTest {
 		String contentType = "png";
 		String filePath = "src/test/resources/files/칠가이.png";
 		MockMultipartFile file1 = getMockMultipartFile(fileName, contentType, filePath);
-		UploadFilesRequestDto requestDto = new UploadFilesRequestDto(List.of(file1));
+		List<MultipartFile> files = List.of(file1);
 
 		User user = UserFixture.user(Role.ADMIN, BigDecimal.ONE);
 		ReflectionTestUtils.setField(user, "id", 8135L);
 
 		// when
-		UploadFilesResponseDto response = fileService.uploadFromTask(requestDto, user);
+		UploadFilesResponseDto response = fileService.uploadFromTask(files, user);
 
 		// then
 		assertThat(response.uploadedFileUrls())
@@ -95,13 +94,12 @@ public class FileServiceTest {
 			String filePath = "src/test/resources/files/칠가이.png";
 			files.add(getMockMultipartFile(fileName, contentType, filePath));
 		}
-		UploadFilesRequestDto requestDto = new UploadFilesRequestDto(files);
 
 		User user = UserFixture.user(Role.ADMIN, BigDecimal.ONE);
 		ReflectionTestUtils.setField(user, "id", 8135L);
 
 		// when
-		UploadFilesResponseDto response = fileService.uploadFromTask(requestDto, user);
+		UploadFilesResponseDto response = fileService.uploadFromTask(files, user);
 
 		// then
 		assertThat(response.uploadedFileUrls())
