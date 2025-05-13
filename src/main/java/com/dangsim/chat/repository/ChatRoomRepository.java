@@ -6,5 +6,5 @@ import org.springframework.stereotype.Repository;
 import com.dangsim.chat.entity.ChatRoom;
 
 @Repository
-public interface ChatRoomRepository extends JpaRepository<ChatRoom, Long> {
+public interface ChatRoomRepository extends JpaRepository<ChatRoom, Long>, ChatRoomQueryRepository {
 }
