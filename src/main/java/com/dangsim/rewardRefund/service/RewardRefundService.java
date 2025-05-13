@@ -15,7 +15,6 @@ import java.math.BigDecimal;
 
 import static com.dangsim.rewardRefund.exception.RewardRefundErrorCode.*;
 
-
 @Service
 @RequiredArgsConstructor
 public class RewardRefundService {
@@ -24,27 +23,23 @@ public class RewardRefundService {
     private final RewardRefundRepository rewardRequestRepository;
 
     @Transactional
-    public void requestRefund(Long userId, RewardRefundRequest requestDto) { // 환급 요청
+    public void requestRefund(Long userId, RewardRefundRequest requestDto) {
 
-        // 로그인한 사용자의 정보 가져오기
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new BaseException(REFUND_USER_NOT_FOUND));
 
         BigDecimal requestAmount = BigDecimal.valueOf(requestDto.getAmount());
 
-        // 요청 금액이 0 이하인 경우
         if (requestAmount.compareTo(BigDecimal.ZERO) <= 0) {
             throw new BaseException(REFUND_AMOUNT_ZERO);
         }
 
-        // 요청 금액이 보유 리워드보다 크면 예외
         if (requestAmount.compareTo(user.getReward()) > 0) {
             throw new BaseException(REFUND_AMOUNT_EXCEEDS_BALANCE);
         }
 
-        // 리워드 환급 요청 엔티티 생성
         RewardRefundEntity rewardRequest = RewardRefundEntity.of(
-                user, // 현재 사용중인 user id (fk)
+                user,
                 requestAmount,
                 requestDto.getBankName(),
                 requestDto.getBankAccount(),
@@ -53,8 +48,6 @@ public class RewardRefundService {
         );
 
         rewardRequestRepository.save(rewardRequest);
-
-        // User 리워드 업데이트
         user.updateReward(user.getReward().subtract(requestAmount));
     }
 }
