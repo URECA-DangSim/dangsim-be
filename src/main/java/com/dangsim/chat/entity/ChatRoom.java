@@ -18,6 +18,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -52,4 +53,20 @@ public class ChatRoom extends BaseEntity {
 		nullable = false,
 		foreignKey = @ForeignKey(NO_CONSTRAINT))
 	private User performer;
+
+	@Builder(access = PRIVATE)
+	private ChatRoom(Task task, User requester, User performer) {
+		this.task = task;
+		this.requester = requester;
+		this.performer = performer;
+	}
+
+	public static ChatRoom of(Task task, User requester, User performer) {
+		return ChatRoom.builder()
+			.task(task)
+			.requester(requester)
+			.performer(performer)
+			.build();
+	}
+
 }

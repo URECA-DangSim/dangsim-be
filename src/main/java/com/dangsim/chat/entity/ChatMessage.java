@@ -12,6 +12,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -42,4 +43,21 @@ public class ChatMessage extends BaseEntity {
 	@NotNull
 	@Column(name = "chat_room_id", nullable = false)
 	private Long chatRoomId;
+
+	@Builder(access = PRIVATE)
+	private ChatMessage(String message, boolean isRead, Long userId, Long chatRoomId) {
+		this.message = message;
+		this.isRead = isRead;
+		this.userId = userId;
+		this.chatRoomId = chatRoomId;
+	}
+
+	public static ChatMessage of(Long chatRoomId, Long userId, String message) {
+		return ChatMessage.builder()
+			.message(message)
+			.userId(userId)
+			.chatRoomId(chatRoomId)
+			.isRead(false)
+			.build();
+	}
 }
