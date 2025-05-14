@@ -1,5 +1,21 @@
 package com.dangsim.pg.service;
 
+import static com.dangsim.common.util.DateTimeFormatUtils.*;
+
+import java.math.BigDecimal;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.RestTemplate;
+
 import com.dangsim.common.exception.runtime.BaseException;
 import com.dangsim.payment.entity.Payment;
 import com.dangsim.payment.repository.PaymentRepository;
@@ -11,18 +27,8 @@ import com.dangsim.pg.exception.PaymentGatewayErrorCode;
 import com.dangsim.pg.repository.PaymentGatewayRepository;
 import com.dangsim.task.entity.Task;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.*;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.client.RestTemplate;
-
-import java.math.BigDecimal;
-import java.util.HashMap;
-import java.util.Map;
-
-import static com.dangsim.common.util.DateTimeFormatUtils.parseDateTimePG;
 
 @Service
 @RequiredArgsConstructor
@@ -61,7 +67,6 @@ public class PaymentGatewayService {
         HttpEntity<String> entity = new HttpEntity<>(requestBody, headers);
 
         ResponseEntity<PortOneTokenResponse> response = restTemplate.postForEntity(url, entity, PortOneTokenResponse.class);
-        // response : http 응답 전체를 감싸는 객체
 
         PortOneTokenResponse responseBody = response.getBody();
         if (responseBody == null || responseBody.getCode() != 0) {
@@ -87,9 +92,6 @@ public class PaymentGatewayService {
         InicisResponse.Response paymentData = response.getBody().getResponse();
 
         BigDecimal portOneAmount = BigDecimal.valueOf(paymentData.getAmount());
-
-//        Payment payment = paymentRepository.findById(paymentId)
-//                .orElseThrow(() -> new BaseException(PaymentGatewayErrorCode.PAYMENT_NOT_FOUND));
 
         Payment payment = paymentRepository.findByMerchantUid(paymentData.getMerchant_uid())
                 .orElseThrow(() -> new BaseException(PaymentGatewayErrorCode.PAYMENT_NOT_FOUND));
@@ -118,9 +120,7 @@ public class PaymentGatewayService {
                 payment
         );
 
-        // 검증 후 엔티티 생성,만약 검증이 안되면 Transaction 롤백
         validatePaymentAmount(paymentGateway, portOneAmount);
-
         paymentGatewayRepository.save(paymentGateway);
     }
 

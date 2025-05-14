@@ -44,8 +44,8 @@ public class DateTimeFormatUtils {
 			// String 값이 숫자 형태일 때 (초 단위 timestamp)
 			long epochSecond = Long.parseLong(deadline);
 			return LocalDateTime.ofInstant(
-					Instant.ofEpochSecond(epochSecond),
-					ZoneId.systemDefault() // 시스템 기본 시간대 사용
+				Instant.ofEpochSecond(epochSecond),
+				ZoneId.systemDefault() // 시스템 기본 시간대 사용
 			);
 		} catch (NumberFormatException e) {
 			// 숫자가 아니면 기존 포맷 (yy.MM.dd HH:mm)으로 파싱

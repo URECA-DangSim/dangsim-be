@@ -16,7 +16,6 @@ import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.dangsim.common.exception.runtime.BaseException;
 import com.dangsim.file.dto.FileMapper;
-import com.dangsim.file.dto.request.UploadFilesRequestDto;
 import com.dangsim.file.dto.response.UploadFilesResponseDto;
 import com.dangsim.file.exception.FileException;
 import com.dangsim.user.entity.User;
@@ -36,9 +35,7 @@ public class FileService {
 	@Value("${cloud.aws.s3.bucket}")
 	private String bucket;
 
-	public UploadFilesResponseDto uploadFromTask(UploadFilesRequestDto uploadFilesRequestDto, User user) {
-		List<MultipartFile> files = FileMapper.toMultipartFiles(uploadFilesRequestDto);
-
+	public UploadFilesResponseDto uploadFromTask(List<MultipartFile> files, User user) {
 		if (Objects.isNull(files) || files.isEmpty()) {
 			throw new BaseException(FileException.EMPTY_FILE);
 		}
