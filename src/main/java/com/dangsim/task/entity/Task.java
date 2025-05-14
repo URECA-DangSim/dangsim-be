@@ -117,5 +117,9 @@ public class Task extends BaseEntity {
 			.images(taskImages)
 			.build();
 	}
+
+	public void updateStatus(TaskStatus status) {
+		this.status = status;
+	}
 }
 
