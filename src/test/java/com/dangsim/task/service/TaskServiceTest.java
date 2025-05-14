@@ -594,6 +594,9 @@ public class TaskServiceTest {
 		TaskMatchResponse response = taskService.matchPerformer(task.getId(), other);
 
 		// then
-		assertThat(response.chatRoomId()).isEqualTo(chatRoom.getId());
+		assertAll(
+			() -> assertThat(response.chatRoomId()).isEqualTo(chatRoom.getId()),
+			() -> assertThat(task.getStatus()).isEqualTo(TASK_IN_PROGRESS)
+		);
 	}
 }
