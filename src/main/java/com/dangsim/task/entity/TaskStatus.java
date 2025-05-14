@@ -11,7 +11,8 @@ public enum TaskStatus {
 
 	TASK_NOT_ASSIGNED("미배정"),
 	TASK_IN_PROGRESS("진행"),
-	TASK_COMPLETE("진행완료");
+	TASK_COMPLETE("진행완료"),
+	TASK_DELETE("삭제");
 
 	private final String status;
 

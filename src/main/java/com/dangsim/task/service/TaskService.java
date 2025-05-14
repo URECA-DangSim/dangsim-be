@@ -95,7 +95,8 @@ public class TaskService {
 
 		validateNotAssigned(findTask);
 
-		taskRepository.deleteById(taskId);
+		findTask.updateStatus(TASK_DELETE);
+		// TODO 소원님: Payment, PG 등등 상태 환블로 변경
 
 		return new TaskDeleteResponse(true);
 	}
