@@ -1,5 +1,7 @@
 package com.dangsim.task.service;
 
+import static com.dangsim.payment.entity.PaymentStatus.*;
+import static com.dangsim.task.entity.TaskStatus.*;
 import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
@@ -20,16 +22,22 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 
+import com.dangsim.chat.entity.ChatRoom;
+import com.dangsim.chat.repository.ChatRoomRepository;
 import com.dangsim.common.CursorPageResponse;
 import com.dangsim.common.exception.runtime.BaseException;
+import com.dangsim.common.fixture.ChatRoomFixture;
+import com.dangsim.common.fixture.PaymentFixture;
 import com.dangsim.common.fixture.TaskFixture;
 import com.dangsim.common.fixture.UserFixture;
 import com.dangsim.common.util.DateTimeFormatUtils;
 import com.dangsim.payment.entity.Payment;
+import com.dangsim.payment.exception.PaymentErrorCode;
 import com.dangsim.payment.repository.PaymentRepository;
 import com.dangsim.task.dto.request.TaskRequestDto;
 import com.dangsim.task.dto.response.TaskDeleteResponse;
 import com.dangsim.task.dto.response.TaskDetailsResponseDto;
+import com.dangsim.task.dto.response.TaskMatchResponse;
 import com.dangsim.task.dto.response.TaskResponseDto;
 import com.dangsim.task.dto.response.TaskSimpleResponseDto;
 import com.dangsim.task.entity.Task;
@@ -47,6 +55,9 @@ public class TaskServiceTest {
 
 	@Mock
 	PaymentRepository paymentRepository;
+
+	@Mock
+	ChatRoomRepository chatRoomRepository;
 
 	@InjectMocks
 	TaskService taskService;
@@ -118,7 +129,7 @@ public class TaskServiceTest {
 		);
 	}
 
-	@DisplayName("심부름 요청 정보를 가져올 때 자신의 요청인지 검증한다.")
+	@DisplayName("심부름 요청 정보를 가져올 때 다른 사람의 요청인지 검증한다.")
 	@Test
 	void getTaskDetailsByTaskIdWithOther() {
 		// given
@@ -351,7 +362,7 @@ public class TaskServiceTest {
 
 		Task task = TaskFixture.task(title, content, requester);
 		ReflectionTestUtils.setField(task, "id", 1L);
-		ReflectionTestUtils.setField(task, "status", TaskStatus.TASK_NOT_ASSIGNED);
+		ReflectionTestUtils.setField(task, "status", TASK_NOT_ASSIGNED);
 
 		given(taskRepository.findById(any(Long.class))).willReturn(Optional.of(task));
 
@@ -360,5 +371,229 @@ public class TaskServiceTest {
 
 		// then
 		assertTrue(responseDto.result());
+	}
+
+	@DisplayName("수행자를 매칭할 때 심부름 상태가 완료 상태라면 예외가 발생한다.")
+	@Test
+	void throwExceptionWhenTaskStatusIsComplete() {
+		// given
+		User user = UserFixture.user(Role.USER, BigDecimal.ONE);
+		ReflectionTestUtils.setField(user, "id", 1L);
+
+		Task task = TaskFixture.task(TaskStatus.TASK_COMPLETE, user);
+		ReflectionTestUtils.setField(task, "id", 1L);
+
+		given(taskRepository.findById(any(Long.class))).willReturn(Optional.of(task));
+
+		// when	// then
+		assertThatThrownBy(() -> taskService.matchPerformer(task.getId(), user))
+			.isInstanceOf(BaseException.class)
+			.hasMessage(TaskErrorCode.IS_MATCHING.getMessage());
+	}
+
+	@DisplayName("수행자를 매칭할 때 심부름 상태가 진행 중 상태라면 예외가 발생한다.")
+	@Test
+	void throwExceptionWhenTaskStatusIsProgress() {
+		// given
+		User user = UserFixture.user(Role.USER, BigDecimal.ONE);
+		ReflectionTestUtils.setField(user, "id", 1L);
+
+		Task task = TaskFixture.task(TaskStatus.TASK_IN_PROGRESS, user);
+		ReflectionTestUtils.setField(task, "id", 1L);
+
+		given(taskRepository.findById(any(Long.class))).willReturn(Optional.of(task));
+
+		// when	// then
+		assertThatThrownBy(() -> taskService.matchPerformer(task.getId(), user))
+			.isInstanceOf(BaseException.class)
+			.hasMessage(TaskErrorCode.IS_MATCHING.getMessage());
+	}
+
+	@DisplayName("수행자를 매칭할 때 요청자 자신의 심부름이라면 예외가 발생한다.")
+	@Test
+	void throwExceptionWhenTaskIsOwner() {
+		// given
+		User user = UserFixture.user(Role.USER, BigDecimal.ONE);
+		ReflectionTestUtils.setField(user, "id", 1L);
+
+		Task task = TaskFixture.task(TASK_NOT_ASSIGNED, user);
+		ReflectionTestUtils.setField(task, "id", 1L);
+
+		given(taskRepository.findById(any(Long.class))).willReturn(Optional.of(task));
+
+		// when	// then
+		assertThatThrownBy(() -> taskService.matchPerformer(task.getId(), user))
+			.isInstanceOf(BaseException.class)
+			.hasMessage(TaskErrorCode.NOT_MATCH_YOURSELF.getMessage());
+	}
+
+	@DisplayName("수행자를 매칭할 때 연관된 결제를 찾을 수 없다면 예외가 발생한다.")
+	@Test
+	void throwExceptionWhenNotFoundPayment() {
+		// given
+		User user = UserFixture.user(Role.USER, BigDecimal.ONE);
+		ReflectionTestUtils.setField(user, "id", 1L);
+		User other = UserFixture.user(Role.USER, BigDecimal.ONE);
+		ReflectionTestUtils.setField(user, "id", 2L);
+
+		Task task = TaskFixture.task(TASK_NOT_ASSIGNED, user);
+		ReflectionTestUtils.setField(task, "id", 1L);
+
+		given(taskRepository.findById(any(Long.class))).willReturn(Optional.of(task));
+		given(paymentRepository.findByTaskId(any(Long.class))).willReturn(Optional.ofNullable(null));
+
+		// when	// then
+		assertThatThrownBy(() -> taskService.matchPerformer(task.getId(), other))
+			.isInstanceOf(BaseException.class)
+			.hasMessage(PaymentErrorCode.NOT_FOUND_PAYMENT.getMessage());
+	}
+
+	@DisplayName("수행자를 매칭할 때 연관된 결제의 수행자가 존재한다면 예외가 발생한다.")
+	@Test
+	void throwExceptionWhenExistPerformer() {
+		// given
+		User user = UserFixture.user(Role.USER, BigDecimal.ONE);
+		ReflectionTestUtils.setField(user, "id", 1L);
+		User other = UserFixture.user(Role.USER, BigDecimal.ONE);
+		ReflectionTestUtils.setField(user, "id", 2L);
+
+		Task task = TaskFixture.task(TASK_NOT_ASSIGNED, user);
+		ReflectionTestUtils.setField(task, "id", 1L);
+
+		Payment payment = PaymentFixture.payment(task, user, other);
+		ReflectionTestUtils.setField(payment, "id", 1L);
+
+		given(taskRepository.findById(any(Long.class))).willReturn(Optional.of(task));
+		given(paymentRepository.findByTaskId(any(Long.class))).willReturn(Optional.of(payment));
+
+		// when	// then
+		assertThatThrownBy(() -> taskService.matchPerformer(task.getId(), other))
+			.isInstanceOf(BaseException.class)
+			.hasMessage(PaymentErrorCode.PERFORMER_ALREADY_EXISTS.getMessage());
+	}
+
+	@DisplayName("수행자를 매칭할 때 연관된 결제 상태가 결제 전 상태라면 예외가 발생한다.")
+	@Test
+	void throwExceptionWhenPaymentStatusIsWaiting() {
+		// given
+		User user = UserFixture.user(Role.USER, BigDecimal.ONE);
+		ReflectionTestUtils.setField(user, "id", 1L);
+		User other = UserFixture.user(Role.USER, BigDecimal.ONE);
+		ReflectionTestUtils.setField(user, "id", 2L);
+
+		Task task = TaskFixture.task(TASK_NOT_ASSIGNED, user);
+		ReflectionTestUtils.setField(task, "id", 1L);
+
+		Payment payment = PaymentFixture.payment(PAYMENT_WAITING, task, user, null);
+		ReflectionTestUtils.setField(payment, "id", 1L);
+
+		given(taskRepository.findById(any(Long.class))).willReturn(Optional.of(task));
+		given(paymentRepository.findByTaskId(any(Long.class))).willReturn(Optional.of(payment));
+
+		// when	// then
+		assertThatThrownBy(() -> taskService.matchPerformer(task.getId(), other))
+			.isInstanceOf(BaseException.class)
+			.hasMessage(PaymentErrorCode.NOT_MATCH_PAYMENT_STATUS.getMessage());
+	}
+
+	@DisplayName("수행자를 매칭할 때 연관된 결제 상태가 결제 실패 상태라면 예외가 발생한다.")
+	@Test
+	void throwExceptionWhenPaymentStatusIsFail() {
+		// given
+		User user = UserFixture.user(Role.USER, BigDecimal.ONE);
+		ReflectionTestUtils.setField(user, "id", 1L);
+		User other = UserFixture.user(Role.USER, BigDecimal.ONE);
+		ReflectionTestUtils.setField(user, "id", 2L);
+
+		Task task = TaskFixture.task(TASK_NOT_ASSIGNED, user);
+		ReflectionTestUtils.setField(task, "id", 1L);
+
+		Payment payment = PaymentFixture.payment(PAYMENT_FAILED, task, user, null);
+		ReflectionTestUtils.setField(payment, "id", 1L);
+
+		given(taskRepository.findById(any(Long.class))).willReturn(Optional.of(task));
+		given(paymentRepository.findByTaskId(any(Long.class))).willReturn(Optional.of(payment));
+
+		// when	// then
+		assertThatThrownBy(() -> taskService.matchPerformer(task.getId(), other))
+			.isInstanceOf(BaseException.class)
+			.hasMessage(PaymentErrorCode.NOT_MATCH_PAYMENT_STATUS.getMessage());
+	}
+
+	@DisplayName("수행자를 매칭할 때 연관된 결제 상태가 결제 정산 상태라면 예외가 발생한다.")
+	@Test
+	void throwExceptionWhenPaymentStatusIsCalculated() {
+		// given
+		User user = UserFixture.user(Role.USER, BigDecimal.ONE);
+		ReflectionTestUtils.setField(user, "id", 1L);
+		User other = UserFixture.user(Role.USER, BigDecimal.ONE);
+		ReflectionTestUtils.setField(user, "id", 2L);
+
+		Task task = TaskFixture.task(TASK_NOT_ASSIGNED, user);
+		ReflectionTestUtils.setField(task, "id", 1L);
+
+		Payment payment = PaymentFixture.payment(PAYMENT_CALCULATED, task, user, null);
+		ReflectionTestUtils.setField(payment, "id", 1L);
+
+		given(taskRepository.findById(any(Long.class))).willReturn(Optional.of(task));
+		given(paymentRepository.findByTaskId(any(Long.class))).willReturn(Optional.of(payment));
+
+		// when	// then
+		assertThatThrownBy(() -> taskService.matchPerformer(task.getId(), other))
+			.isInstanceOf(BaseException.class)
+			.hasMessage(PaymentErrorCode.NOT_MATCH_PAYMENT_STATUS.getMessage());
+	}
+
+	@DisplayName("수행자를 매칭할 때 연관된 결제 상태가 결제 환불 상태라면 예외가 발생한다.")
+	@Test
+	void throwExceptionWhenPaymentStatusIsRefunded() {
+		// given
+		User user = UserFixture.user(Role.USER, BigDecimal.ONE);
+		ReflectionTestUtils.setField(user, "id", 1L);
+		User other = UserFixture.user(Role.USER, BigDecimal.ONE);
+		ReflectionTestUtils.setField(user, "id", 2L);
+
+		Task task = TaskFixture.task(TASK_NOT_ASSIGNED, user);
+		ReflectionTestUtils.setField(task, "id", 1L);
+
+		Payment payment = PaymentFixture.payment(PAYMENT_REFUNDED, task, user, null);
+		ReflectionTestUtils.setField(payment, "id", 1L);
+
+		given(taskRepository.findById(any(Long.class))).willReturn(Optional.of(task));
+		given(paymentRepository.findByTaskId(any(Long.class))).willReturn(Optional.of(payment));
+
+		// when	// then
+		assertThatThrownBy(() -> taskService.matchPerformer(task.getId(), other))
+			.isInstanceOf(BaseException.class)
+			.hasMessage(PaymentErrorCode.NOT_MATCH_PAYMENT_STATUS.getMessage());
+	}
+
+	@DisplayName("수행자를 매칭이 성공되면, 채팅방이 생성된다")
+	@Test
+	void createChatRoomWhenMatchIsSuccess() {
+		// given
+		User user = UserFixture.user(Role.USER, BigDecimal.ONE);
+		ReflectionTestUtils.setField(user, "id", 1L);
+		User other = UserFixture.user(Role.USER, BigDecimal.ONE);
+		ReflectionTestUtils.setField(user, "id", 2L);
+
+		Task task = TaskFixture.task(TASK_NOT_ASSIGNED, user);
+		ReflectionTestUtils.setField(task, "id", 1L);
+
+		Payment payment = PaymentFixture.payment(PAYMENT_SUCCESSES, task, user, null);
+		ReflectionTestUtils.setField(payment, "id", 1L);
+
+		ChatRoom chatRoom = ChatRoomFixture.chatRoom(task, user, other);
+		ReflectionTestUtils.setField(chatRoom, "id", 156L);
+
+		given(taskRepository.findById(any(Long.class))).willReturn(Optional.of(task));
+		given(paymentRepository.findByTaskId(any(Long.class))).willReturn(Optional.of(payment));
+		given(chatRoomRepository.save(any(ChatRoom.class))).willReturn(chatRoom);
+
+		// when
+		TaskMatchResponse response = taskService.matchPerformer(task.getId(), other);
+
+		// then
+		assertThat(response.chatRoomId()).isEqualTo(chatRoom.getId());
 	}
 }

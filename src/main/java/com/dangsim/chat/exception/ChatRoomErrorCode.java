@@ -10,7 +10,9 @@ import lombok.RequiredArgsConstructor;
 public enum ChatRoomErrorCode implements ErrorCode {
 
 	NOT_FOUND_CHATROOM("해당하는 채팅방을 찾을 수 없습니다.", "CHATROOM_001"),
-	NOT_CHAT_ROOM_OWNER("해당 채팅방에 속하지 않은 유저입니다.", "CHATROOM_002");
+	NOT_CHAT_ROOM_OWNER("해당 채팅방에 속하지 않은 유저입니다.", "CHATROOM_002"),
+	PERFORMER_ALREADY_EXISTS("수행자가 이미 존재합니다.", "CHATROOM_003")
+	;
 
 	private final String message;
 	private final String code;
