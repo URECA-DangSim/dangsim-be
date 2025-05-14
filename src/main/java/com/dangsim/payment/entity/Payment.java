@@ -58,31 +58,32 @@ public class Payment extends BaseEntity {
 	@NotNull
 	@OneToOne(fetch = FetchType.LAZY)
 	@JoinColumn(
-		name = "task_id",
-		nullable = false,
-		foreignKey = @ForeignKey(name = "fk_payment_task")
+			name = "task_id",
+			nullable = false,
+			foreignKey = @ForeignKey(name = "fk_payment_task")
 	)
 	private Task task;
 
 	@NotNull
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(
-		name = "requester_id",
-		nullable = false,
-		foreignKey = @ForeignKey(name = "fk_payment_requester")
+			name = "requester_id",
+			nullable = false,
+			foreignKey = @ForeignKey(name = "fk_payment_requester")
 	)
 	private User requester;
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(
-		name = "performer_id",
-		foreignKey = @ForeignKey(name = "fk_payment_performer")
+			name = "performer_id",
+			foreignKey = @ForeignKey(name = "fk_payment_performer")
 	)
 	private User performer;
 
 	@Builder(access = PRIVATE)
 	private Payment(BigDecimal reward, PaymentStatus status, String merchantUid,
 		Task task, User requester, User performer) {
+
 		this.reward = reward;
 		this.status = status;
 		this.merchantUid = merchantUid;
@@ -93,15 +94,16 @@ public class Payment extends BaseEntity {
 
 	public static Payment of(BigDecimal reward, PaymentStatus status, String merchantUid, Task task, User requester) {
 		return Payment.builder()
-			.reward(reward)
-			.status(status)
-			.merchantUid(merchantUid)
-			.task(task)
-			.requester(requester)
-			.build();
+				.reward(reward)
+				.status(status)
+				.merchantUid(merchantUid)
+				.task(task)
+				.requester(requester)
+				.build();
 	}
 
 	public void updatePerformer(User performer) {
 		this.performer = performer;
 	}
+
 }
