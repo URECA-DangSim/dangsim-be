@@ -73,7 +73,7 @@ public class TaskService {
 	}
 
 	private boolean isTaskOwner(Task task, User user) {
-		return Objects.equals(task.getUser(), user);
+		return Objects.equals(task.getUser().getId(), user.getId());
 	}
 
 	@Transactional(readOnly = true)
