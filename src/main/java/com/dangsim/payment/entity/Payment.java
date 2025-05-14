@@ -101,4 +101,9 @@ public class Payment extends BaseEntity {
 				.requester(requester)
 				.build();
 	}
+
+	public void updatePerformer(User performer) {
+		this.performer = performer;
+	}
+
 }
