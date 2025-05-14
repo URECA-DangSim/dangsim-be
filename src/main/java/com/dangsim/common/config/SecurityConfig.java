@@ -28,6 +28,12 @@ public class SecurityConfig {
 				// .anyRequest().permitAll()
 				.requestMatchers("/api/auth/**").permitAll()
 				.requestMatchers(HttpMethod.GET, "/api/tasks").permitAll()
+				.requestMatchers(
+					"/swagger-ui/**",
+					"/v3/api-docs/**",
+					"/swagger-resources/**",
+					"/webjars/**"
+				).permitAll()
 				.requestMatchers(HttpMethod.POST, "/api/users/user/extra-info").hasRole("TMP_USER")
 				.requestMatchers(HttpMethod.PUT, "/api/users/user/extra-info").authenticated()
 				.anyRequest().authenticated()
