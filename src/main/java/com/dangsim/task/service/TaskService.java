@@ -117,6 +117,8 @@ public class TaskService {
 
 		ChatRoom savedChatRoom = chatRoomRepository.save(ChatRoom.of(findTask, findTask.getUser(), performer));
 
+		findTask.updateStatus(TASK_IN_PROGRESS);
+
 		return TaskMapper.toTaskMatchResponse(savedChatRoom);
 	}
 
