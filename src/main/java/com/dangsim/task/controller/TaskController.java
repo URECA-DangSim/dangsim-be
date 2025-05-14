@@ -14,6 +14,7 @@ import com.dangsim.common.CursorPageResponse;
 import com.dangsim.task.dto.request.TaskRequestDto;
 import com.dangsim.task.dto.response.TaskDeleteResponse;
 import com.dangsim.task.dto.response.TaskDetailsResponseDto;
+import com.dangsim.task.dto.response.TaskMatchResponse;
 import com.dangsim.task.dto.response.TaskResponseDto;
 import com.dangsim.task.dto.response.TaskSimpleResponseDto;
 import com.dangsim.task.service.TaskService;
@@ -74,6 +75,17 @@ public class TaskController {
 		@AuthenticationPrincipal User user
 	) {
 		TaskDeleteResponse response = taskService.deleteTaskById(taskId, user);
+		return ResponseEntity.ok(response);
+	}
+
+	@Operation(summary = "심부름 매칭 API", description = "심부름 요청 글에 수행자를 매칭한다.")
+	@ApiResponse(useReturnTypeSchema = true)
+	@DeleteMapping("/api/tasks/{taskId}/performer")
+	public ResponseEntity<TaskMatchResponse> matchPerformer(
+		@PathVariable(name = "taskId") Long taskId,
+		@AuthenticationPrincipal User user
+	) {
+		TaskMatchResponse response = taskService.matchPerformer(taskId, user);
 		return ResponseEntity.ok(response);
 	}
 }

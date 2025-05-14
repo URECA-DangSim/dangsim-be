@@ -1,6 +1,7 @@
 package com.dangsim.task.service;
 
 import static com.dangsim.payment.entity.PaymentStatus.*;
+import static com.dangsim.task.entity.TaskStatus.*;
 
 import java.time.LocalDateTime;
 import java.util.Objects;
@@ -8,16 +9,20 @@ import java.util.Objects;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.dangsim.chat.entity.ChatRoom;
+import com.dangsim.chat.repository.ChatRoomRepository;
 import com.dangsim.common.CursorPageResponse;
 import com.dangsim.common.exception.runtime.BaseException;
 import com.dangsim.common.util.DateTimeFormatUtils;
 import com.dangsim.common.util.IdentifierUtils;
 import com.dangsim.payment.entity.Payment;
+import com.dangsim.payment.exception.PaymentErrorCode;
 import com.dangsim.payment.repository.PaymentRepository;
 import com.dangsim.task.dto.TaskMapper;
 import com.dangsim.task.dto.request.TaskRequestDto;
 import com.dangsim.task.dto.response.TaskDeleteResponse;
 import com.dangsim.task.dto.response.TaskDetailsResponseDto;
+import com.dangsim.task.dto.response.TaskMatchResponse;
 import com.dangsim.task.dto.response.TaskResponseDto;
 import com.dangsim.task.dto.response.TaskSimpleResponseDto;
 import com.dangsim.task.entity.Task;
@@ -34,6 +39,7 @@ public class TaskService {
 
 	private final TaskRepository taskRepository;
 	private final PaymentRepository paymentRepository;
+	private final ChatRoomRepository chatRoomRepository;
 
 	@Transactional
 	public TaskResponseDto createTask(TaskRequestDto requestDto, User user) {
@@ -92,6 +98,46 @@ public class TaskService {
 		taskRepository.deleteById(taskId);
 
 		return new TaskDeleteResponse(true);
+	}
+
+	@Transactional
+	public TaskMatchResponse matchPerformer(Long taskId, User performer) {
+		Task findTask = getTaskById(taskId);
+
+		validateMatchByTaskAndPerformer(findTask, performer);
+
+		Payment findPayment = paymentRepository.findByTaskId(findTask.getId()).orElseThrow(
+			() -> new BaseException(PaymentErrorCode.NOT_FOUND_PAYMENT)
+		);
+
+		validateMatchByPaymentAndPerformer(findPayment);
+
+		findPayment.updatePerformer(performer);
+
+		ChatRoom savedChatRoom = chatRoomRepository.save(ChatRoom.of(findTask, findTask.getUser(), performer));
+
+		return TaskMapper.toTaskMatchResponse(savedChatRoom);
+	}
+
+	private static void validateMatchByTaskAndPerformer(Task findTask, User performer) {
+		if (Objects.equals(findTask.getStatus(), TASK_COMPLETE) || Objects.equals(findTask.getStatus(),
+			TASK_IN_PROGRESS)) {
+			throw new BaseException(TaskErrorCode.IS_MATCHING);
+		}
+
+		if (Objects.equals(findTask.getUser(), performer)) {
+			throw new BaseException(TaskErrorCode.NOT_MATCH_YOURSELF);
+		}
+	}
+
+	private static void validateMatchByPaymentAndPerformer(Payment findPayment) {
+		if (!Objects.isNull(findPayment.getPerformer())) {
+			throw new BaseException(PaymentErrorCode.PERFORMER_ALREADY_EXISTS);
+		}
+
+		if (!Objects.equals(findPayment.getStatus(), PAYMENT_SUCCESSES)) {
+			throw new BaseException(PaymentErrorCode.NOT_MATCH_PAYMENT_STATUS);
+		}
 	}
 
 	private void validateNotAssigned(Task task) {
