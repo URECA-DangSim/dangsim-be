@@ -19,11 +19,11 @@ public class PaymentGatewayController {
 	private final PaymentGatewayService paymentGatewayService;
 
 	@PostMapping("/api/payments/validation")
-	public ResponseEntity<PaymentResponse> completePayment(@RequestBody PortOneResponse paymentResponseDto) {
+	public ResponseEntity<PaymentResponse> completePayment(@RequestBody PortOneResponse portOneResponseDto) {
 
-		paymentGatewayService.verifyPaymentDetail(paymentResponseDto.getImpUid());
+		paymentGatewayService.verifyPaymentDetail(portOneResponseDto.getImpUid(), portOneResponseDto.getMerchantUid());
 
 		return ResponseEntity.ok()
-			.body(new PaymentResponse(true, "결제 및 검증 성공", paymentResponseDto.getTaskId()));
+			.body(new PaymentResponse(true, "결제 및 검증 성공", portOneResponseDto.getTaskId()));
 	}
 }

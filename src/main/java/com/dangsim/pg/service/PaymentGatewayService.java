@@ -77,7 +77,7 @@ public class PaymentGatewayService {
     }
 
     @Transactional
-    public void verifyPaymentDetail(String impUid) {
+    public void verifyPaymentDetail(String impUid, String merchantUid) {
         String token = getAccessToken();
 
         String PORTONE_PAYMENT_LOOKUP_URL = "https://api.iamport.kr/payments/";
@@ -93,12 +93,14 @@ public class PaymentGatewayService {
 
         BigDecimal portOneAmount = BigDecimal.valueOf(paymentData.getAmount());
 
-        Payment payment = paymentRepository.findByMerchantUid(paymentData.getMerchant_uid())
+        Payment payment = paymentRepository.findByMerchantUid(merchantUid)
+//        Payment payment = paymentRepository.findByMerchantUid(paymentData.getMerchant_uid())
                 .orElseThrow(() -> new BaseException(PaymentGatewayErrorCode.PAYMENT_NOT_FOUND));
 
         PaymentGateway paymentGateway = PaymentGateway.of(
                 paymentData.getImp_uid(),
-                paymentData.getMerchant_uid(),
+//                paymentData.getMerchant_uid(),
+                merchantUid,
                 paymentData.getPay_method(),
                 paymentData.getPg_provider(),
                 paymentData.getPg_tid(),
