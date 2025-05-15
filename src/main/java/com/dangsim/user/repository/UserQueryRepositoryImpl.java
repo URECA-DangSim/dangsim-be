@@ -10,10 +10,10 @@ import java.util.Objects;
 import org.springframework.stereotype.Repository;
 
 import com.dangsim.common.CursorPageResponse;
-import com.dangsim.common.util.DateTimeFormatUtils;
 import com.dangsim.user.dto.response.QUserTaskResponse;
 import com.dangsim.user.dto.response.UserTaskResponse;
 import com.dangsim.user.entity.User;
+import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 
 import lombok.RequiredArgsConstructor;
@@ -30,8 +30,9 @@ public class UserQueryRepositoryImpl implements UserQueryRepository {
 		List<UserTaskResponse> items = queryFactory
 			.select(new QUserTaskResponse(task))
 			.from(task)
-			.where(task.user.eq(user)
-				.and(task.createdAt.lt(DateTimeFormatUtils.parseDateTime(cursor)))
+			.where(
+				cursorFilter(cursor),
+				task.user.eq(user)
 			)
 			.orderBy(task.createdAt.desc())
 			.limit(size + 1)
@@ -51,8 +52,8 @@ public class UserQueryRepositoryImpl implements UserQueryRepository {
 			.from(payment)
 			.join(payment.task, task)
 			.where(
-				payment.performer.eq(user),
-				task.createdAt.lt(DateTimeFormatUtils.parseDateTime(cursor))
+				cursorFilter(cursor),
+				payment.performer.eq(user)
 			)
 			.orderBy(task.createdAt.desc())
 			.limit(size + 1)
@@ -65,11 +66,19 @@ public class UserQueryRepositoryImpl implements UserQueryRepository {
 		return new CursorPageResponse<>(pageItems, nextCursor, hasNext);
 	}
 
+	private BooleanExpression cursorFilter(String cursor) {
+		if (Objects.isNull(cursor) || cursor.isBlank()) {
+			return null;
+		}
+
+		return task.id.lt(Long.parseLong(cursor));
+	}
+
 	private static String getNextCursor(List<UserTaskResponse> items, boolean hasNext) {
 		if (Objects.isNull(items) || items.isEmpty() || !hasNext) {
 			return null;
 		}
-		return items.get(items.size() - 1).createdAt();
+		return String.valueOf(items.get(items.size() - 1).taskId());
 	}
 
 	private List<UserTaskResponse> subLastPage(List<UserTaskResponse> items, boolean hasNext) {
