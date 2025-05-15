@@ -1,17 +1,13 @@
 package com.dangsim.common.config;
 
-import java.util.Arrays;
-
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.cors.CorsConfigurationSource;
-import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import com.dangsim.jwt.JwtProvider;
 import com.dangsim.jwt.filter.JwtAuthenticationFilter;
@@ -26,7 +22,7 @@ public class SecurityConfig {
 		UserRepository userRepository) throws Exception {
 		http
 			.csrf(csrf -> csrf.disable())
-			.cors(cors -> cors.configurationSource(corsConfigurationSource()))
+			.cors(cors -> Customizer.withDefaults())
 			.formLogin(form -> form.disable())// CORS 기본 설정 활성화
 			.authorizeHttpRequests(auth -> auth
 				// .anyRequest().permitAll()
@@ -46,26 +42,5 @@ public class SecurityConfig {
 				UsernamePasswordAuthenticationFilter.class
 			);
 		return http.build();
-	}
-
-	// Spring Security cors Bean 등록
-	@Bean
-	public CorsConfigurationSource corsConfigurationSource() {
-		CorsConfiguration configuration = new CorsConfiguration();
-
-		configuration.setAllowedOrigins(
-			Arrays.asList(
-				"http://localhost:3000", "https://dangsim-fe.pages.dev",
-				"/ws/**"
-			));
-		configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
-		configuration.setAllowedHeaders(Arrays.asList("*"));
-		configuration.setExposedHeaders(Arrays.asList("Set-Cookie", "Authorization"));
-		configuration.setAllowCredentials(true);
-		configuration.setMaxAge(3000L);
-
-		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-		source.registerCorsConfiguration("/**", configuration);
-		return source;
 	}
 }
