@@ -2,7 +2,7 @@ name: DangSim_CD
 
 on:
   pull_request:
-    branches: [ "deploy" ]
+    branches: [ "dev", "deploy" ]
 
 jobs:
   build_and_deploy:
