@@ -13,6 +13,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+import com.dangsim.payment.entity.PaymentStatus;
+import com.dangsim.pg.repository.PaymentGatewayRepository;
+import com.dangsim.pg.service.PaymentGatewayService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -58,6 +61,12 @@ public class TaskServiceTest {
 
 	@InjectMocks
 	TaskService taskService;
+
+	@Mock
+	PaymentGatewayRepository paymentGatewayRepository;
+
+	@InjectMocks
+	PaymentGatewayService paymentGatewayService;
 
 	@DisplayName("일치하는 심부름 요청이 없으면 예외가 발생한다.")
 	@Test
@@ -300,6 +309,32 @@ public class TaskServiceTest {
 
 		// then
 		assertTrue(responseDto.result());
+	}
+
+	@DisplayName("결제 및 심부름 상태가 정상적으로 업데이트된다.")
+	@Test
+	void updatePaymentAndTaskStatus_successfullyUpdatesStatuses() {
+		// given
+		final String title = "제목입니다.";
+		final String content = "내용입니다.";
+		String merchantUid = "merchant_12345";
+
+		User requester = UserFixture.user(Role.USER, BigDecimal.ZERO);
+		ReflectionTestUtils.setField(requester, "id", 1L);
+
+		Task task = TaskFixture.task(title, content, requester);
+		ReflectionTestUtils.setField(task, "status", TaskStatus.TASK_NOT_ASSIGNED);
+
+		Payment payment = mock(Payment.class);
+		given(paymentRepository.findByMerchantUid(merchantUid)).willReturn(Optional.of(payment));
+		given(payment.getTask()).willReturn(task);
+
+		// when
+		paymentGatewayService.updatePaymentAndTaskStatus(merchantUid);
+
+		// then
+		verify(payment).updatePaymentSuccessStatus(PaymentStatus.PAYMENT_SUCCESSES);
+		assertThat(task.getStatus()).isEqualTo(TaskStatus.TASK_IN_PROGRESS);
 	}
 
 	@DisplayName("수행자를 매칭할 때 심부름 상태가 완료 상태라면 예외가 발생한다.")

@@ -102,8 +102,12 @@ public class Payment extends BaseEntity {
 			.build();
 	}
 
+
+	public void updatePaymentSuccessStatus(PaymentStatus successPaymentStatus) {
+		this.status = successPaymentStatus;
+	}
+
 	public void updatePerformer(User performer) {
 		this.performer = performer;
 	}
-
 }
