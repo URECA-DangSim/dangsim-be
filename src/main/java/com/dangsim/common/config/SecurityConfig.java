@@ -55,7 +55,7 @@ public class SecurityConfig {
 
 		configuration.setAllowedOrigins(
 			Arrays.asList(
-				"http://localhost:3000", "https://dangsim-fe.pages.dev/login",
+				"http://localhost:3000", "https://dangsim-fe.pages.dev",
 				"/ws/**"
 			));
 		configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
