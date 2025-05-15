@@ -8,6 +8,7 @@ import java.util.List;
 
 import com.dangsim.task.entity.Task;
 import com.dangsim.task.entity.TaskImage;
+import com.dangsim.task.entity.TaskStatus;
 import com.dangsim.user.entity.Address;
 import com.dangsim.user.entity.User;
 
@@ -25,6 +26,22 @@ public class TaskFixture {
 			LocalDateTime.of(2000, 1, 1, 5, 0),
 			BigDecimal.ONE,
 			TASK_NOT_ASSIGNED,
+			user,
+			List.of(
+				TaskImage.from("test1.jpg"),
+				TaskImage.from("test2.jpg")
+			)
+		);
+	}
+
+	public static Task task(TaskStatus status, User user) {
+		return Task.of(
+			"제목입니다.",
+			"내용입니다.",
+			new Address("서울시", "강남구", "123"),
+			LocalDateTime.of(2000, 1, 1, 5, 0),
+			BigDecimal.ONE,
+			status,
 			user,
 			List.of(
 				TaskImage.from("test1.jpg"),

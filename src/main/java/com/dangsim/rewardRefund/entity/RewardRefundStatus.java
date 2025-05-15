@@ -7,8 +7,8 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum RewardRefundStatus {
 
-    PENDING("대기중"),
-    SUCCESS("완료");
+	PENDING("대기중"),
+	SUCCESS("완료");
 
-    private final String rewardRefundStatus;
+	private final String rewardRefundStatus;
 }

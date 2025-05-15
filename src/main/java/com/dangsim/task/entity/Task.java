@@ -118,8 +118,8 @@ public class Task extends BaseEntity {
 			.build();
 	}
 
-	public void updatePaymentSuccessStatus(TaskStatus successPaymentStatus) {
-		this.status = successPaymentStatus;
+	public void updateStatus(TaskStatus status) {
+		this.status = status;
 	}
 }
 

@@ -10,22 +10,24 @@ import com.dangsim.task.entity.TaskImage;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.querydsl.core.annotations.QueryProjection;
 
-public record UserTaskResponse (
+public record UserTaskResponse(
 	Long taskId,
 	String title,
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yy.MM.dd HH:mm")
 	LocalDateTime deadline,
 	String reward,
+	String status,
 	String imageUrl,
 	String createdAt
-){
+) {
 	@QueryProjection
-	public UserTaskResponse(Task task){
+	public UserTaskResponse(Task task) {
 		this(
 			task.getId(),
 			task.getTitle(),
 			task.getDeadline(),
 			task.getReward().toPlainString(),
+			task.getStatus().getStatus(),
 			setImageUrl(task.getImages()),
 			DateTimeFormatUtils.formatDateTime(task.getCreatedAt())
 		);

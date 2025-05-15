@@ -9,8 +9,6 @@ import org.springframework.util.StringUtils;
 import com.dangsim.common.CursorPageResponse;
 import com.dangsim.common.exception.runtime.BaseException;
 import com.dangsim.common.util.DateTimeFormatUtils;
-import com.dangsim.task.dto.response.TaskSimpleResponseDto;
-import com.dangsim.task.repository.TaskRepository;
 import com.dangsim.user.dto.UserMapper;
 import com.dangsim.user.dto.request.ExtraInfoRequest;
 import com.dangsim.user.dto.response.CheckNicknameResponse;

@@ -11,8 +11,10 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
+import com.dangsim.chat.entity.ChatRoom;
 import com.dangsim.task.dto.request.TaskRequestDto;
 import com.dangsim.task.dto.response.TaskDetailsResponseDto;
+import com.dangsim.task.dto.response.TaskMatchResponse;
 import com.dangsim.task.dto.response.TaskResponseDto;
 import com.dangsim.task.entity.Task;
 import com.dangsim.task.entity.TaskImage;
@@ -82,5 +84,9 @@ public class TaskMapper {
 		return images = imageUrls.stream()
 			.map(TaskImage::from)
 			.toList();
+	}
+
+	public static TaskMatchResponse toTaskMatchResponse(ChatRoom chatRoom) {
+		return new TaskMatchResponse(chatRoom.getId());
 	}
 }
