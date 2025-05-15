@@ -34,7 +34,7 @@ public class UserQueryRepositoryImpl implements UserQueryRepository {
 				cursorFilter(cursor),
 				task.user.eq(user)
 			)
-			.orderBy(task.createdAt.desc())
+			.orderBy(task.id.desc())
 			.limit(size + 1)
 			.fetch();
 
@@ -55,7 +55,7 @@ public class UserQueryRepositoryImpl implements UserQueryRepository {
 				cursorFilter(cursor),
 				payment.performer.eq(user)
 			)
-			.orderBy(task.createdAt.desc())
+			.orderBy(task.id.desc())
 			.limit(size + 1)
 			.fetch();
 
