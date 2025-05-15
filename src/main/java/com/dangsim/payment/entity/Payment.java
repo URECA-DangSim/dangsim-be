@@ -101,4 +101,8 @@ public class Payment extends BaseEntity {
 				.requester(requester)
 				.build();
 	}
+
+	public void updatePaymentSuccessStatus(PaymentStatus successPaymentStatus) {
+		this.status = successPaymentStatus;
+	}
 }

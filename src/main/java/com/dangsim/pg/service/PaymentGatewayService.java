@@ -6,6 +6,8 @@ import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.dangsim.payment.entity.PaymentStatus;
+import com.dangsim.task.entity.TaskStatus;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -149,5 +151,14 @@ public class PaymentGatewayService {
         if (taskReward.compareTo(portOneAmount) != 0) {
             throw new IllegalArgumentException("Task 리워드 금액과 결제 금액이 일치하지 않습니다.");
         }
+    }
+
+    public void updatePaymentAndTaskStatus(String merchantUid) {
+        Payment payment = paymentRepository.findByMerchantUid(merchantUid)
+                .orElseThrow(() -> new IllegalArgumentException("해당 merchantUid의 결제를 찾을 수 없습니다."));
+
+        // 상태 업데이트
+        payment.updatePaymentSuccessStatus(PaymentStatus.PAYMENT_SUCCESSES);  // setter 또는 별도 메서드 필요
+        payment.getTask().updatePaymentSuccessStatus(TaskStatus.TASK_IN_PROGRESS); // setter 또는 별도 메서드 필요
     }
 }
