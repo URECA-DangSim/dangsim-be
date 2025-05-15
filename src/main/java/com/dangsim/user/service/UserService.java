@@ -1,14 +1,10 @@
 package com.dangsim.user.service;
 
-import java.time.LocalDateTime;
-
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.StringUtils;
 
 import com.dangsim.common.CursorPageResponse;
 import com.dangsim.common.exception.runtime.BaseException;
-import com.dangsim.common.util.DateTimeFormatUtils;
 import com.dangsim.user.dto.UserMapper;
 import com.dangsim.user.dto.request.ExtraInfoRequest;
 import com.dangsim.user.dto.response.CheckNicknameResponse;
@@ -60,16 +56,10 @@ public class UserService {
 	}
 
 	public CursorPageResponse<UserTaskResponse> getRequestedTasks(String cursor, int size, User user) {
-		if (!StringUtils.hasText(cursor)) {
-			cursor = DateTimeFormatUtils.formatDateTime(LocalDateTime.now());
-		}
 		return userRepository.findRequestedTasksByCursor(cursor, size, user);
 	}
 
 	public CursorPageResponse<UserTaskResponse> getPerformedTasks(String cursor, int size, User user) {
-		if (!StringUtils.hasText(cursor)) {
-			cursor = DateTimeFormatUtils.formatDateTime(LocalDateTime.now());
-		}
 		return userRepository.findPerformedTasksByCursor(cursor, size, user);
 	}
 
