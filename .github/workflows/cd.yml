@@ -36,7 +36,10 @@ jobs:
 
       - name: 도버 이미지 빌드
         run: |
-          docker build -t ${{ secrets.DOCKER_USERNAME }}/my-spring-boot-app:${{ github.sha }} .
+          docker build \
+          -f ./dangsim-be/Dockerfile \
+          -t ${{ secrets.DOCKER_USERNAME }}/my-spring-boot-app:${{ github.sha }} \
+          ./dangsim-be
 
       - name: 도커 허브 로그인
         uses: docker/login-action@v2
