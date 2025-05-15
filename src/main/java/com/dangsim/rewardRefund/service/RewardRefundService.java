@@ -4,12 +4,12 @@ import static com.dangsim.rewardRefund.exception.RewardRefundErrorCode.*;
 
 import java.math.BigDecimal;
 
+import com.dangsim.rewardRefund.entity.RewardRefund;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.dangsim.common.exception.runtime.BaseException;
 import com.dangsim.rewardRefund.dto.request.RewardRefundRequest;
-import com.dangsim.rewardRefund.entity.RewardRefundEntity;
 import com.dangsim.rewardRefund.entity.RewardRefundStatus;
 import com.dangsim.rewardRefund.repository.RewardRefundRepository;
 import com.dangsim.user.entity.User;
@@ -40,7 +40,7 @@ public class RewardRefundService {
 			throw new BaseException(REFUND_AMOUNT_EXCEEDS_BALANCE);
 		}
 
-		RewardRefundEntity rewardRequest = RewardRefundEntity.of(
+		RewardRefund rewardRequest = RewardRefund.of(
 			user,
 			requestAmount,
 			requestDto.getBankName(),
