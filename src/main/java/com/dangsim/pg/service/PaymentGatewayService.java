@@ -158,7 +158,7 @@ public class PaymentGatewayService {
                 .orElseThrow(() -> new IllegalArgumentException("해당 merchantUid의 결제를 찾을 수 없습니다."));
 
         // 상태 업데이트
-        payment.updatePaymentSuccessStatus(PaymentStatus.PAYMENT_SUCCESSES);  // setter 또는 별도 메서드 필요
-        payment.getTask().updatePaymentSuccessStatus(TaskStatus.TASK_IN_PROGRESS); // setter 또는 별도 메서드 필요
+        payment.updatePaymentSuccessStatus(PaymentStatus.PAYMENT_SUCCESSES); 
+        payment.getTask().updateStatus(TaskStatus.TASK_IN_PROGRESS);
     }
 }
