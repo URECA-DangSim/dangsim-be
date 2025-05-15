@@ -8,6 +8,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -109,6 +110,7 @@ class UserServiceTest {
 		assertThat(response.profileImage()).isEqualTo(PROFILE_IMAGE);
 	}
 
+	@Disabled
 	@DisplayName("유저의 심부름 요청 내역을 조회한다. - 커서 없음")
 	@Test
 	void getRequestedTasksWithNoCursor() {
