@@ -1,6 +1,6 @@
 package com.dangsim.common.config;
 
-import java.util.Arrays;
+import java.util.List;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -50,22 +50,18 @@ public class SecurityConfig {
 
 	@Bean
 	public CorsConfigurationSource corsConfigurationSource() {
-		CorsConfiguration config = new CorsConfiguration();
-		config.setAllowedOrigins(Arrays.asList(
+		CorsConfiguration configuration = new CorsConfiguration();
+		configuration.setAllowedOrigins(List.of(
 			"http://localhost:3000",
 			"https://dangsim-fe.pages.dev"
 		));
-		config.setAllowedMethods(Arrays.asList(
-			"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"
-		));
-		config.setAllowedHeaders(Arrays.asList(
-			"Authorization", "Content-Type", "X-Requested-With", "Accept"
-		));
-		config.setAllowCredentials(true);
+		configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
+		configuration.setAllowedHeaders(List.of("*"));
+		configuration.setAllowCredentials(true);
+		configuration.setMaxAge(3600L);
 
 		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-		// 모든 경로에 대해 위 정책을 적용
-		source.registerCorsConfiguration("/**", config);
+		source.registerCorsConfiguration("/**", configuration);
 		return source;
 	}
 }
