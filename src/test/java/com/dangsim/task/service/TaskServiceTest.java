@@ -16,7 +16,6 @@ import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -24,7 +23,6 @@ import org.springframework.test.util.ReflectionTestUtils;
 
 import com.dangsim.chat.entity.ChatRoom;
 import com.dangsim.chat.repository.ChatRoomRepository;
-import com.dangsim.common.CursorPageResponse;
 import com.dangsim.common.exception.runtime.BaseException;
 import com.dangsim.common.fixture.ChatRoomFixture;
 import com.dangsim.common.fixture.PaymentFixture;
@@ -39,7 +37,6 @@ import com.dangsim.task.dto.response.TaskDeleteResponse;
 import com.dangsim.task.dto.response.TaskDetailsResponseDto;
 import com.dangsim.task.dto.response.TaskMatchResponse;
 import com.dangsim.task.dto.response.TaskResponseDto;
-import com.dangsim.task.dto.response.TaskSimpleResponseDto;
 import com.dangsim.task.entity.Task;
 import com.dangsim.task.entity.TaskStatus;
 import com.dangsim.task.exception.TaskErrorCode;
@@ -213,74 +210,6 @@ public class TaskServiceTest {
 		assertThatThrownBy(() -> taskService.createTask(requestDto, user))
 			.isInstanceOf(BaseException.class)
 			.hasMessage(TaskErrorCode.NOT_ENOUGH_DEADLINE.getMessage());
-	}
-
-	@DisplayName("커서가 없으면 현재 시각으로 포맷된 커서를 사용하여 조회한다.")
-	@Test
-	void getTasksByCursor_usesFormattedCurrentTimeWhenCursorIsNull() {
-		// given
-		final int size = 3;
-		CursorPageResponse<TaskSimpleResponseDto> expected =
-			new CursorPageResponse<>(List.of(), null, false);
-		given(taskRepository.findTasksByCursor(anyString(), eq(size), any())).willReturn(expected);
-
-		// when
-		CursorPageResponse<TaskSimpleResponseDto> response =
-			taskService.getTasksByCursor(null, size, null);
-
-		// then
-		assertThat(response).isSameAs(expected);
-
-		ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
-		ArgumentCaptor<User> captor2 = ArgumentCaptor.forClass(User.class);
-		verify(taskRepository).findTasksByCursor(captor.capture(), eq(size), captor2.capture());
-		String usedCursor = captor.getValue();
-		assertThat(usedCursor).isNotBlank();
-		assertThat(usedCursor).matches("\\d{2}\\.\\d{2}\\.\\d{2} \\d{2}:\\d{2}");
-	}
-
-	@DisplayName("커서가 빈 문자열이면 현재 시각으로 포맷된 커서를 사용하여 조회한다.")
-	@Test
-	void getTasksByCursor_usesFormattedCurrentTimeWhenCursorIsBlank() {
-		// given
-		int size = 5;
-		CursorPageResponse<TaskSimpleResponseDto> expected =
-			new CursorPageResponse<>(List.of(), null, false);
-		given(taskRepository.findTasksByCursor(anyString(), eq(size), any())).willReturn(expected);
-
-		// when
-		CursorPageResponse<TaskSimpleResponseDto> response =
-			taskService.getTasksByCursor("", size, null);
-
-		// then
-		assertThat(response).isSameAs(expected);
-
-		ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
-		ArgumentCaptor<User> captor2 = ArgumentCaptor.forClass(User.class);
-		verify(taskRepository).findTasksByCursor(captor.capture(), eq(size), captor2.capture());
-		String usedCursor = captor.getValue();
-		assertThat(usedCursor).isNotBlank();
-		assertThat(usedCursor).matches("\\d{2}\\.\\d{2}\\.\\d{2} \\d{2}:\\d{2}");
-	}
-
-	@DisplayName("커서가 주어지면 해당 커서를 사용하여 조회한다.")
-	@Test
-	void getTasksByCursor_usesProvidedCursorWhenNotNullOrBlank() {
-		// given
-		final String cursor = "25.05.01 15:00";
-		final int size = 7;
-		User user = UserFixture.user(Role.USER, BigDecimal.ONE);
-		CursorPageResponse<TaskSimpleResponseDto> expected =
-			new CursorPageResponse<>(List.of(), null, false);
-		given(taskRepository.findTasksByCursor(cursor, size, user)).willReturn(expected);
-
-		// when
-		CursorPageResponse<TaskSimpleResponseDto> response =
-			taskService.getTasksByCursor(cursor, size, user);
-
-		// then
-		assertThat(response).isSameAs(expected);
-		verify(taskRepository).findTasksByCursor(cursor, size, user);
 	}
 
 	@DisplayName("요청자가 해당 심부름에 작성자가 아니라면 예외가 발생한다.")

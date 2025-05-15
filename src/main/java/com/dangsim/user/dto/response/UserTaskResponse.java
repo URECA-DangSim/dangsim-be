@@ -16,6 +16,7 @@ public record UserTaskResponse(
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yy.MM.dd HH:mm")
 	LocalDateTime deadline,
 	String reward,
+	String status,
 	String imageUrl,
 	String createdAt
 ) {
@@ -26,6 +27,7 @@ public record UserTaskResponse(
 			task.getTitle(),
 			task.getDeadline(),
 			task.getReward().toPlainString(),
+			task.getStatus().getStatus(),
 			setImageUrl(task.getImages()),
 			DateTimeFormatUtils.formatDateTime(task.getCreatedAt())
 		);
