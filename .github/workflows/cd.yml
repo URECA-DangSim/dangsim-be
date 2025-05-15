@@ -34,21 +34,15 @@ jobs:
       - name: Build with Gradle
         run: ./gradlew clean build -x test --no-daemon
 
-      - name: 도버 이미지 빌드
-        run: |
-          docker build \
-          -f ./dangsim-be/Dockerfile \
-          -t ${{ secrets.DOCKER_USERNAME }}/my-spring-boot-app:${{ github.sha }} \
-          ./dangsim-be
-
       - name: 도커 허브 로그인
         uses: docker/login-action@v2
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: Push Docker image
+      - name: 도커 이미지 빌드 & 푸시
         run: |
+          docker build -f Dockerfile -t ${{ secrets.DOCKER_USERNAME }}/my-spring-boot-app:${{ github.sha }} .
           docker push ${{ secrets.DOCKER_USERNAME }}/my-spring-boot-app:${{ github.sha }}
 
       - name: Set up SSH key
