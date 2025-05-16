@@ -163,6 +163,6 @@ public class PaymentGatewayService {
 			.orElseThrow(() -> new BaseException(PaymentErrorCode.NOT_FOUND_PAYMENT));
 
 		// 상태 업데이트
-		payment.updatePaymentSuccessStatus(PaymentStatus.PAYMENT_SUCCESSES);
+		payment.updateStatus(PaymentStatus.PAYMENT_SUCCESSES);
 	}
 }

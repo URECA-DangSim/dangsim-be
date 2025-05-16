@@ -13,6 +13,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+import com.dangsim.reward.entity.Reward;
+import com.dangsim.reward.repository.RewardRepository;
+import com.dangsim.user.repository.UserRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -71,6 +74,12 @@ public class TaskServiceTest {
 
 	@InjectMocks
 	PaymentGatewayService paymentGatewayService;
+
+	@Mock
+	UserRepository userRepository;
+
+	@Mock
+	RewardRepository rewardRepository;
 
 	@DisplayName("일치하는 심부름 요청이 없으면 예외가 발생한다.")
 	@Test
@@ -307,6 +316,9 @@ public class TaskServiceTest {
 		ReflectionTestUtils.setField(task, "status", TASK_NOT_ASSIGNED);
 
 		given(taskRepository.findById(any(Long.class))).willReturn(Optional.of(task));
+		given(userRepository.findById(requester.getId())).willReturn(Optional.of(requester));
+		given(paymentRepository.findByTaskId(any())).willReturn(Optional.of(mock(Payment.class)));
+		given(rewardRepository.save(any())).willReturn(mock(Reward.class));
 
 		// when
 		TaskDeleteResponse responseDto = taskService.deleteTaskById(task.getId(), requester);

@@ -103,8 +103,8 @@ public class Payment extends BaseEntity {
 	}
 
 
-	public void updatePaymentSuccessStatus(PaymentStatus successPaymentStatus) {
-		this.status = successPaymentStatus;
+	public void updateStatus(PaymentStatus status) {
+		this.status = status;
 	}
 
 	public void updatePerformer(User performer) {
