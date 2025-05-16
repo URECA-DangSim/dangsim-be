@@ -6,6 +6,7 @@ public record ChatRoomInfoResponse(
 	Long chatRoomId,
 	TaskInfoResponse taskInfo,
 	Long chatPartnerId,
-	String partnerNickname
+	String partnerNickname,
+	Long myId
 ) {
 }

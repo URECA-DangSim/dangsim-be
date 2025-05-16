@@ -1,5 +1,7 @@
 package com.dangsim.chat.dto.response;
 
+import java.util.Objects;
+
 import com.dangsim.chat.entity.ChatMessage;
 import com.dangsim.chat.entity.ChatRoom;
 import com.dangsim.common.util.DateTimeFormatUtils;
@@ -12,7 +14,8 @@ public record ChatRoomSimpleResponse(
 	String nickname,
 	String content,
 	String timestamp,
-	Boolean isRead
+	Boolean isRead,
+	Long chatMessageId
 
 ) {
 	@QueryProjection
@@ -21,9 +24,35 @@ public record ChatRoomSimpleResponse(
 			chatRoom.getId(),
 			partner.getId(),
 			partner.getNickname(),
-			lastChatMessage.getMessage(),
-			DateTimeFormatUtils.formatDateTime(lastChatMessage.getCreatedAt()),
-			lastChatMessage.isRead()
+			initChatMessage(lastChatMessage),
+			initTimeStamp(lastChatMessage),
+			initIsRead(lastChatMessage),
+			lastChatMessage.getId()
 		);
 	}
+
+	private static final String DEFAULT = "채팅을 시작해보세요";
+
+	public static String initChatMessage(ChatMessage lastChatMessage) {
+		if (Objects.isNull(lastChatMessage)) {
+			return DEFAULT;
+		}
+		return lastChatMessage.getMessage();
+	}
+
+	public static String initTimeStamp(ChatMessage lastChatMessage) {
+		if (Objects.isNull(lastChatMessage)) {
+			return "";
+		}
+		return DateTimeFormatUtils.formatDateTime(lastChatMessage.getCreatedAt());
+	}
+
+	public static Boolean initIsRead(ChatMessage lastChatMessage) {
+		if (Objects.isNull(lastChatMessage)) {
+			return false;
+		}
+		return lastChatMessage.isRead();
+	}
+
 }
+

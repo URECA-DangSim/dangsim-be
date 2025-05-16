@@ -33,15 +33,26 @@ public class ChatRoomQueryRepositoryImpl implements ChatRoomQueryRepository {
 	private final JPAQueryFactory queryFactory;
 
 	@Override
-	public CursorPageResponse<ChatRoomSimpleResponse> findChatRoomsByCursor(String cursor, int size, Long userId) {
+	public CursorPageResponse<ChatRoomSimpleResponse> findChatRoomsByCursor(
+		String cursor, int size, Long userId) {
 
 		QChatMessage lastMessage = new QChatMessage("lastMessage");
 		QUser partner = new QUser("partner");
 
+		BooleanExpression isRequester = chatRoom.requester.id.eq(userId)
+			.and(partner.id.eq(chatRoom.performer.id));
+		BooleanExpression isPerformer = chatRoom.performer.id.eq(userId)
+			.and(partner.id.eq(chatRoom.requester.id));
+		BooleanExpression partnerJoinCondition = isRequester.or(isPerformer);
+
+		BooleanExpression cursorFilter = null;
+		if (cursor != null && !cursor.isBlank()) {
+			cursorFilter = lastMessage.id.lt(Long.parseLong(cursor));
+		}
+
 		List<ChatRoomSimpleResponse> chatRooms = queryFactory
 			.select(new QChatRoomSimpleResponse(chatRoom, lastMessage, partner))
 			.from(chatRoom)
-			//최근 메시지 조인
 			.leftJoin(lastMessage)
 			.on(lastMessage.chatRoomId.eq(chatRoom.id),
 				lastMessage.id.eq(
@@ -50,17 +61,14 @@ public class ChatRoomQueryRepositoryImpl implements ChatRoomQueryRepository {
 						.from(chatMessage)
 						.where(chatMessage.chatRoomId.eq(chatRoom.id))
 				))
-			//상대방 유저 조인
 			.leftJoin(partner)
-			.on(
-				chatRoom.requester.id.eq(userId).and(partner.id.eq(chatRoom.performer.id))
-					.or(chatRoom.performer.id.eq(userId).and(partner.id.eq(chatRoom.requester.id)))
-			)
+			.on(partnerJoinCondition)
 			.where(
-				chatRoom.requester.id.eq(userId).or(chatRoom.performer.id.eq(userId)),
-				isBeforeCursor(lastMessage.createdAt, cursor)
+				chatRoom.requester.id.eq(userId)
+					.or(chatRoom.performer.id.eq(userId)),
+				cursorFilter
 			)
-			.orderBy(lastMessage.createdAt.desc())
+			.orderBy(lastMessage.id.desc())
 			.limit(size + 1)
 			.fetch();
 
@@ -74,15 +82,14 @@ public class ChatRoomQueryRepositoryImpl implements ChatRoomQueryRepository {
 	@Override
 	public CursorPageResponse<ChatRoomDetailResponse> findChatMessagesByCursor(Long chatRoomId, String cursor, int size,
 		Long userId) {
-
 		List<ChatMessageDetailResponse> allMessages = queryFactory
 			.select(new QChatMessageDetailResponse(chatMessage))
 			.from(chatMessage)
 			.where(
 				chatMessage.chatRoomId.eq(chatRoomId),
-				isBeforeCursor(chatMessage.createdAt, cursor)
+				chatMessageCursorFilter(cursor)
 			)
-			.orderBy(chatMessage.createdAt.desc())
+			.orderBy(chatMessage.id.desc())
 			.limit(size + 1)
 			.fetch();
 
@@ -93,6 +100,22 @@ public class ChatRoomQueryRepositoryImpl implements ChatRoomQueryRepository {
 		ChatRoomDetailResponse detailResponse = new ChatRoomDetailResponse(chatRoomId, pageMessages);
 
 		return new CursorPageResponse<>(Collections.singletonList(detailResponse), nextCursor, hasNext);
+	}
+
+	private BooleanExpression chatRoomCursorFilter(String cursor) {
+		if (Objects.isNull(cursor) || cursor.isBlank()) {
+			return null;
+		}
+
+		return chatRoom.id.lt(Long.parseLong(cursor));
+	}
+
+	private BooleanExpression chatMessageCursorFilter(String cursor) {
+		if (Objects.isNull(cursor) || cursor.isBlank()) {
+			return null;
+		}
+
+		return chatMessage.id.lt(Long.parseLong(cursor));
 	}
 
 	private BooleanExpression isBeforeCursor(DateTimePath<LocalDateTime> dateTimePath, String cursor) {
@@ -106,7 +129,7 @@ public class ChatRoomQueryRepositoryImpl implements ChatRoomQueryRepository {
 		if (Objects.isNull(chatrooms) || chatrooms.isEmpty() || !hasNext) {
 			return null;
 		}
-		return chatrooms.get(chatrooms.size() - 1).timestamp();
+		return String.valueOf(chatrooms.get(chatrooms.size() - 1).chatMessageId());
 	}
 
 	private String getNextCursorByMessage(List<ChatMessageDetailResponse> messages, boolean hasNext) {
