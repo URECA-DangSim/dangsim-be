@@ -1,5 +1,6 @@
 package com.dangsim.task.repository;
 
+import static com.dangsim.payment.entity.QPayment.*;
 import static com.dangsim.task.entity.QTask.*;
 
 import java.util.Collections;
@@ -9,6 +10,7 @@ import java.util.Objects;
 import org.springframework.stereotype.Repository;
 
 import com.dangsim.common.CursorPageResponse;
+import com.dangsim.payment.entity.PaymentStatus;
 import com.dangsim.task.dto.response.QTaskSimpleResponseDto;
 import com.dangsim.task.dto.response.TaskSimpleResponseDto;
 import com.dangsim.task.entity.TaskStatus;
@@ -33,9 +35,13 @@ public class TaskQueryRepositoryImpl implements TaskQueryRepository {
 		List<TaskSimpleResponseDto> items = queryFactory
 			.select(new QTaskSimpleResponseDto(task))
 			.from(task)
-			.where(cursorFilter(cursor),
+			.join(payment)
+			.on(payment.task.eq(task))
+			.where(
+				cursorFilter(cursor),
 				isAddressEq(user),
-				task.status.eq(TaskStatus.TASK_NOT_ASSIGNED)
+				task.status.eq(TaskStatus.TASK_NOT_ASSIGNED),
+				payment.status.eq(PaymentStatus.PAYMENT_SUCCESSES)
 			)
 			.orderBy(task.id.desc())
 			.limit(size + 1)
