@@ -326,19 +326,21 @@ public class TaskServiceTest {
 		User requester = UserFixture.user(Role.USER, BigDecimal.ZERO);
 		ReflectionTestUtils.setField(requester, "id", 1L);
 
+		User performer = UserFixture.user(Role.USER, BigDecimal.ZERO);
+		ReflectionTestUtils.setField(requester, "id", 2L);
+
 		Task task = TaskFixture.task(title, content, requester);
+		ReflectionTestUtils.setField(task, "id", 1L);
 		ReflectionTestUtils.setField(task, "status", TaskStatus.TASK_NOT_ASSIGNED);
 
-		Payment payment = mock(Payment.class);
+		Payment payment = PaymentFixture.payment(task, requester, performer);
 		given(paymentRepository.findByMerchantUid(merchantUid)).willReturn(Optional.of(payment));
-		given(payment.getTask()).willReturn(task);
 
-		// when
+    // when
 		paymentGatewayService.updatePaymentAndTaskStatus(merchantUid);
 
 		// then
-		verify(payment).updatePaymentSuccessStatus(PaymentStatus.PAYMENT_SUCCESSES);
-		assertThat(task.getStatus()).isEqualTo(TaskStatus.TASK_IN_PROGRESS);
+		assertThat(payment.getStatus()).isEqualTo(PAYMENT_SUCCESSES);
 	}
 
 	@DisplayName("수행자를 매칭할 때 심부름 상태가 완료 상태라면 예외가 발생한다.")

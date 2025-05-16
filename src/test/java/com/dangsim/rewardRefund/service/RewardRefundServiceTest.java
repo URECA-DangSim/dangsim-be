@@ -8,6 +8,7 @@ import static org.mockito.BDDMockito.*;
 import java.math.BigDecimal;
 import java.util.Optional;
 
+import com.dangsim.rewardRefund.entity.RewardRefund;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -18,7 +19,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import com.dangsim.common.exception.runtime.BaseException;
 import com.dangsim.common.fixture.UserFixture;
 import com.dangsim.rewardRefund.dto.request.RewardRefundRequest;
-import com.dangsim.rewardRefund.entity.RewardRefundEntity;
 import com.dangsim.rewardRefund.repository.RewardRefundRepository;
 import com.dangsim.user.entity.Role;
 import com.dangsim.user.entity.User;
@@ -113,7 +113,7 @@ class RewardRefundServiceTest {
 		RewardRefundRequest request = new RewardRefundRequest(requestAmount, BANK_NAME, ACCOUNT_NUMBER, ACCOUNT_HOLDER);
 
 		given(userRepository.findById(userId)).willReturn(Optional.of(user));
-		given(rewardRefundRepository.save(any(RewardRefundEntity.class))).willAnswer(
+		given(rewardRefundRepository.save(any(RewardRefund.class))).willAnswer(
 			invocation -> invocation.getArgument(0));
 
 		// when
@@ -121,6 +121,6 @@ class RewardRefundServiceTest {
 
 		// then
 		assertThat(user.getReward()).isEqualByComparingTo(initialReward.subtract(requestAmount));
-		then(rewardRefundRepository).should(times(1)).save(any(RewardRefundEntity.class));
+		then(rewardRefundRepository).should(times(1)).save(any(RewardRefund.class));
 	}
 }

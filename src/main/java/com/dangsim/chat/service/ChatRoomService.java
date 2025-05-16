@@ -53,7 +53,7 @@ public class ChatRoomService {
 
 	public CursorPageResponse<ChatRoomDetailResponse> getChatMessagesByCursor(Long chatRoomId, String cursor, int size,
 		Long userId) {
-		System.out.println(cursor);
+
 		return chatRoomRepository.findChatMessagesByCursor(chatRoomId, cursor, size, userId);
 	}
 

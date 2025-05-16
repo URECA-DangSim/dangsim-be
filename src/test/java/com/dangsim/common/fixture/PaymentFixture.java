@@ -36,4 +36,15 @@ public class PaymentFixture {
 		payment.updatePerformer(performer);
 		return payment;
 	}
+
+	public static Payment payment(PaymentStatus status, Task task, User requester) {
+		Payment payment = Payment.of(
+			BigDecimal.ONE,
+			status,
+			"merchantUid",
+			task,
+			requester
+		);
+		return payment;
+	}
 }
