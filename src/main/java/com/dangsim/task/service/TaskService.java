@@ -55,7 +55,7 @@ public class TaskService {
 
 		String merchantUid = IdentifierUtils.generateMerchantUid(saveTask.getId(), LocalDateTime.now());
 
-		paymentRepository.save(Payment.of(saveTask.getReward(), PAYMENT_SUCCESSES, merchantUid, saveTask, user));
+		paymentRepository.save(Payment.of(saveTask.getReward(), PAYMENT_WAITING, merchantUid, saveTask, user));
 
 		return TaskMapper.toTaskResponseDto(saveTask, merchantUid);
 	}
