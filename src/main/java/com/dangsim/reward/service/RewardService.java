@@ -2,6 +2,7 @@ package com.dangsim.reward.service;
 
 import com.dangsim.chat.entity.ChatRoom;
 import com.dangsim.chat.repository.ChatRoomRepository;
+import com.dangsim.common.exception.runtime.BaseException;
 import com.dangsim.payment.entity.Payment;
 import com.dangsim.payment.repository.PaymentRepository;
 import com.dangsim.reward.dto.response.RewardChatResponse;
@@ -18,6 +19,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+
+import static com.dangsim.user.exception.UserErrorCode.USER_NOT_FOUND;
 
 @Service
 @RequiredArgsConstructor
@@ -59,16 +62,23 @@ public class RewardService {
         BigDecimal afterReward = beforeReward.add(rewardAmount);
 
         // 6. User reward 값 업데이트
-        performer.updateReward(afterReward);
+//        performer.updateReward(afterReward);
+        User managedUser = userRepository.findById(performer.getId())
+                .orElseThrow(() -> new BaseException(USER_NOT_FOUND));
+        managedUser.updateReward(afterReward);
+
         userRepository.save(performer);
 
         // 7. 정산 내역 저장
         Reward statement = Reward.of(
+                beforeReward,
                 rewardAmount,
+                afterReward,
                 task,
                 performer,
                 LocalDateTime.now()
         );
+
         rewardStatementRepository.save(statement);
 
         return statement;

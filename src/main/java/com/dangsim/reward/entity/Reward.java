@@ -58,17 +58,23 @@ public class Reward extends BaseEntity {
     private LocalDateTime completedAt;
 
     @Builder(access = PRIVATE)
-    public Reward(BigDecimal amount, Task task, User user, LocalDateTime completedAt) {
+    public Reward(BigDecimal beforeReward, BigDecimal amount, BigDecimal afterReward,
+                  Task task, User user, LocalDateTime completedAt) {
+        this.beforeReward = beforeReward;
         this.amount = amount;
+        this.afterReward = afterReward;
         this.task = task;
         this.user = user;
         this.requestedAt = LocalDateTime.now();
         this.completedAt = completedAt;
     }
 
-    public static Reward of(BigDecimal amount, Task task, User user, LocalDateTime completedAt) {
+    public static Reward of(BigDecimal beforeReward, BigDecimal amount, BigDecimal afterReward,
+                            Task task, User user, LocalDateTime completedAt) {
         return Reward.builder()
+                .beforeReward(beforeReward)
                 .amount(amount)
+                .afterReward(afterReward)
                 .task(task)
                 .user(user)
                 .requestedAt(LocalDateTime.now())
