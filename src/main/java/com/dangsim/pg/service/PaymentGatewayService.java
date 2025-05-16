@@ -153,6 +153,7 @@ public class PaymentGatewayService {
         }
     }
 
+    @Transactional
     public void updatePaymentAndTaskStatus(String merchantUid) {
         Payment payment = paymentRepository.findByMerchantUid(merchantUid)
                 .orElseThrow(() -> new IllegalArgumentException("해당 merchantUid의 결제를 찾을 수 없습니다."));
