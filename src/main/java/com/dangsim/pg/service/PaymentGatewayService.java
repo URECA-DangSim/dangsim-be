@@ -19,6 +19,7 @@ import org.springframework.web.client.RestTemplate;
 import com.dangsim.common.exception.runtime.BaseException;
 import com.dangsim.payment.entity.Payment;
 import com.dangsim.payment.entity.PaymentStatus;
+import com.dangsim.payment.exception.PaymentErrorCode;
 import com.dangsim.payment.repository.PaymentRepository;
 import com.dangsim.pg.dto.InicisResponse;
 import com.dangsim.pg.dto.PortOneTokenResponse;
@@ -157,7 +158,7 @@ public class PaymentGatewayService {
 	@Transactional
 	public void updatePaymentAndTaskStatus(String merchantUid) {
 		Payment payment = paymentRepository.findByMerchantUid(merchantUid)
-			.orElseThrow(() -> new IllegalArgumentException("해당 merchantUid의 결제를 찾을 수 없습니다."));
+			.orElseThrow(() -> new BaseException(PaymentErrorCode.NOT_FOUND_PAYMENT));
 
 		// 상태 업데이트
 		payment.updatePaymentSuccessStatus(PaymentStatus.PAYMENT_SUCCESSES);
