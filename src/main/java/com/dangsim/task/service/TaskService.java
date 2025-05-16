@@ -9,7 +9,9 @@ import java.util.Objects;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.dangsim.chat.entity.ChatMessage;
 import com.dangsim.chat.entity.ChatRoom;
+import com.dangsim.chat.repository.ChatMessageRepository;
 import com.dangsim.chat.repository.ChatRoomRepository;
 import com.dangsim.common.CursorPageResponse;
 import com.dangsim.common.exception.runtime.BaseException;
@@ -37,9 +39,12 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class TaskService {
 
+	private static final String HELLO_CHAT_MESSAGE = "채팅을 시작해보세요";
+
 	private final TaskRepository taskRepository;
 	private final PaymentRepository paymentRepository;
 	private final ChatRoomRepository chatRoomRepository;
+	private final ChatMessageRepository chatMessageRepository;
 
 	@Transactional
 	public TaskResponseDto createTask(TaskRequestDto requestDto, User user) {
@@ -50,7 +55,7 @@ public class TaskService {
 
 		String merchantUid = IdentifierUtils.generateMerchantUid(saveTask.getId(), LocalDateTime.now());
 
-		paymentRepository.save(Payment.of(saveTask.getReward(), PAYMENT_SUCCESSES, merchantUid, saveTask, user));
+		paymentRepository.save(Payment.of(saveTask.getReward(), PAYMENT_WAITING, merchantUid, saveTask, user));
 
 		return TaskMapper.toTaskResponseDto(saveTask, merchantUid);
 	}
@@ -112,6 +117,9 @@ public class TaskService {
 		findPayment.updatePerformer(performer);
 
 		ChatRoom savedChatRoom = chatRoomRepository.save(ChatRoom.of(findTask, findTask.getUser(), performer));
+
+		ChatMessage chatMessage = ChatMessage.of(savedChatRoom.getId(), performer.getId(), HELLO_CHAT_MESSAGE);
+		chatMessageRepository.save(chatMessage);
 
 		findTask.updateStatus(TASK_IN_PROGRESS);
 

@@ -37,12 +37,13 @@ public class ChatRoomMapper {
 	}
 
 	public static ChatRoomInfoResponse toChatRoomInfoResponse(Long chatRoomId, User chatPartner,
-		TaskInfoResponse taskInfoResponse) {
+		TaskInfoResponse taskInfoResponse, Long userId) {
 		return new ChatRoomInfoResponse(
 			chatRoomId,
 			taskInfoResponse,
 			chatPartner.getId(),
-			chatPartner.getNickname()
+			chatPartner.getNickname(),
+			userId
 		);
 	}
 
@@ -56,9 +57,9 @@ public class ChatRoomMapper {
 
 	public static boolean isCompletedTask(Task task) {
 		if (Objects.equals(task.getStatus(), TASK_COMPLETE)) {
-			return false;
+			return true;
 		}
-		return true;
+		return false;
 	}
 
 }

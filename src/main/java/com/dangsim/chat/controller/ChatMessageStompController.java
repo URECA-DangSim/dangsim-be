@@ -1,7 +1,5 @@
 package com.dangsim.chat.controller;
 
-import java.security.Principal;
-
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.stereotype.Controller;
@@ -21,10 +19,10 @@ public class ChatMessageStompController {
 	@MessageMapping("/chat-rooms/{chatRoomId}")
 	public void createChatMessage(
 		@DestinationVariable Long chatRoomId,
-		Principal principal,
 		@Valid CreateChatMessageRequest request
 	) {
-		Long userId = Long.valueOf(principal.getName());
+
+		Long userId = request.senderId();
 		chatMessageService.createChatMessage(request, userId, chatRoomId);
 	}
 
