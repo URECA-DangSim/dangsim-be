@@ -5,6 +5,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
@@ -15,6 +16,14 @@ import com.dangsim.user.repository.UserRepository;
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
+
+	@Bean
+	public WebSecurityCustomizer webSecurityCustomizer() {
+		return web -> web.ignoring()
+			.requestMatchers(
+				"/error", "/favicon.ico", "/ws/**"
+			);
+	}
 
 	@Bean
 	public SecurityFilterChain filterChain(HttpSecurity http, JwtProvider jwtProvider,
@@ -28,6 +37,7 @@ public class SecurityConfig {
 				// .anyRequest().permitAll()
 				.requestMatchers("/api/auth/**").permitAll()
 				.requestMatchers(HttpMethod.GET, "/api/tasks").permitAll()
+				.requestMatchers("/ws-chat/**").permitAll()
 				.requestMatchers(
 					"/swagger-ui/**",
 					"/v3/api-docs/**",
