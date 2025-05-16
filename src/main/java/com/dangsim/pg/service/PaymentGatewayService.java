@@ -6,6 +6,8 @@ import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.dangsim.payment.entity.PaymentStatus;
+import com.dangsim.task.entity.TaskStatus;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -77,7 +79,7 @@ public class PaymentGatewayService {
     }
 
     @Transactional
-    public void verifyPaymentDetail(String impUid) {
+    public void verifyPaymentDetail(String impUid, String merchantUid) {
         String token = getAccessToken();
 
         String PORTONE_PAYMENT_LOOKUP_URL = "https://api.iamport.kr/payments/";
@@ -93,12 +95,14 @@ public class PaymentGatewayService {
 
         BigDecimal portOneAmount = BigDecimal.valueOf(paymentData.getAmount());
 
-        Payment payment = paymentRepository.findByMerchantUid(paymentData.getMerchant_uid())
+        Payment payment = paymentRepository.findByMerchantUid(merchantUid)
+//        Payment payment = paymentRepository.findByMerchantUid(paymentData.getMerchant_uid())
                 .orElseThrow(() -> new BaseException(PaymentGatewayErrorCode.PAYMENT_NOT_FOUND));
 
         PaymentGateway paymentGateway = PaymentGateway.of(
                 paymentData.getImp_uid(),
-                paymentData.getMerchant_uid(),
+//                paymentData.getMerchant_uid(),
+                merchantUid,
                 paymentData.getPay_method(),
                 paymentData.getPg_provider(),
                 paymentData.getPg_tid(),
@@ -147,5 +151,15 @@ public class PaymentGatewayService {
         if (taskReward.compareTo(portOneAmount) != 0) {
             throw new IllegalArgumentException("Task 리워드 금액과 결제 금액이 일치하지 않습니다.");
         }
+    }
+
+    @Transactional
+    public void updatePaymentAndTaskStatus(String merchantUid) {
+        Payment payment = paymentRepository.findByMerchantUid(merchantUid)
+                .orElseThrow(() -> new IllegalArgumentException("해당 merchantUid의 결제를 찾을 수 없습니다."));
+
+        // 상태 업데이트
+        payment.updatePaymentSuccessStatus(PaymentStatus.PAYMENT_SUCCESSES); 
+        payment.getTask().updateStatus(TaskStatus.TASK_IN_PROGRESS);
     }
 }

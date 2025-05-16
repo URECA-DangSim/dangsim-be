@@ -9,7 +9,6 @@ import java.util.Objects;
 import org.springframework.stereotype.Repository;
 
 import com.dangsim.common.CursorPageResponse;
-import com.dangsim.common.util.DateTimeFormatUtils;
 import com.dangsim.task.dto.response.QTaskSimpleResponseDto;
 import com.dangsim.task.dto.response.TaskSimpleResponseDto;
 import com.dangsim.task.entity.TaskStatus;
@@ -34,11 +33,11 @@ public class TaskQueryRepositoryImpl implements TaskQueryRepository {
 		List<TaskSimpleResponseDto> items = queryFactory
 			.select(new QTaskSimpleResponseDto(task))
 			.from(task)
-			.where(task.createdAt.lt(DateTimeFormatUtils.parseDateTime(cursor))
-				.and(isAddressEq(user))
-				.and(task.status.eq(TaskStatus.TASK_NOT_ASSIGNED))
+			.where(cursorFilter(cursor),
+				isAddressEq(user),
+				task.status.eq(TaskStatus.TASK_NOT_ASSIGNED)
 			)
-			.orderBy(task.createdAt.desc())
+			.orderBy(task.id.desc())
 			.limit(size + 1)
 			.fetch();
 
@@ -51,12 +50,12 @@ public class TaskQueryRepositoryImpl implements TaskQueryRepository {
 		return new CursorPageResponse<>(pageItems, nextCursor, hasNext);
 	}
 
-	private static String getNextCursor(List<TaskSimpleResponseDto> items, boolean hasNext) {
-		if (Objects.isNull(items) || items.isEmpty() || !hasNext) {
+	private BooleanExpression cursorFilter(String cursor) {
+		if (Objects.isNull(cursor) || cursor.isBlank()) {
 			return null;
 		}
 
-		return items.get(items.size() - 1).createdAt();
+		return task.id.lt(Long.parseLong(cursor));
 	}
 
 	private BooleanExpression isAddressEq(User user) {
@@ -69,6 +68,14 @@ public class TaskQueryRepositoryImpl implements TaskQueryRepository {
 		return task.address.city.eq(user.getAddress().getCity())
 			.and(task.address.street.eq(user.getAddress().getStreet()))
 			.and(task.address.zipcode.eq(user.getAddress().getZipcode()));
+	}
+
+	private static String getNextCursor(List<TaskSimpleResponseDto> items, boolean hasNext) {
+		if (Objects.isNull(items) || items.isEmpty() || !hasNext) {
+			return null;
+		}
+
+		return String.valueOf(items.get(items.size() - 1).taskId());
 	}
 
 	private List<TaskSimpleResponseDto> subLastPage(List<TaskSimpleResponseDto> items, boolean hasNext) {

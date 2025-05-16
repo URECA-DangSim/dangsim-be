@@ -83,10 +83,6 @@ public class TaskService {
 
 	@Transactional(readOnly = true)
 	public CursorPageResponse<TaskSimpleResponseDto> getTasksByCursor(String cursor, int size, User user) {
-		if (Objects.isNull(cursor) || cursor.isBlank()) {
-			cursor = DateTimeFormatUtils.formatDateTime(LocalDateTime.now());
-		}
-
 		return taskRepository.findTasksByCursor(cursor, size, user);
 	}
 
@@ -124,6 +120,8 @@ public class TaskService {
 
 		ChatMessage chatMessage = ChatMessage.of(savedChatRoom.getId(), performer.getId(), HELLO_CHAT_MESSAGE);
 		chatMessageRepository.save(chatMessage);
+
+		findTask.updateStatus(TASK_IN_PROGRESS);
 
 		return TaskMapper.toTaskMatchResponse(savedChatRoom);
 	}
