@@ -46,6 +46,7 @@ public class StompChannelInterceptor implements ChannelInterceptor {
 			Long userId = jwtProvider.getUserIdFromToken(token);
 			Principal principal = () -> String.valueOf(userId);
 			accessor.setUser(principal);
+			accessor.setLeaveMutable(true);
 		}
 		return message;
 	}

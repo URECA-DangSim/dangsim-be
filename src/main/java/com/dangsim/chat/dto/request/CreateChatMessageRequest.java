@@ -11,6 +11,8 @@ public record CreateChatMessageRequest(
 	MessageType type,
 	@Size(max = 300, message = "최대 300자까지 입력이 가능합니다.")
 	@NotBlank
-	String content
+	String content,
+	@NotNull
+	Long senderId
 ) {
 }

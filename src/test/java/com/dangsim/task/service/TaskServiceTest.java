@@ -31,6 +31,7 @@ import com.dangsim.common.fixture.TaskFixture;
 import com.dangsim.common.fixture.UserFixture;
 import com.dangsim.common.util.DateTimeFormatUtils;
 import com.dangsim.payment.entity.Payment;
+import com.dangsim.payment.entity.PaymentStatus;
 import com.dangsim.payment.exception.PaymentErrorCode;
 import com.dangsim.payment.repository.PaymentRepository;
 import com.dangsim.pg.repository.PaymentGatewayRepository;
