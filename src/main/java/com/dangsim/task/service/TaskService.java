@@ -55,6 +55,7 @@ public class TaskService {
 	private final RewardRepository rewardRepository;
 	private final UserRepository userRepository;
 
+
 	@Transactional
 	public TaskResponseDto createTask(TaskRequestDto requestDto, User user) {
 		validateEnoughDeadLine(requestDto.deadline(), LocalDateTime.now());
