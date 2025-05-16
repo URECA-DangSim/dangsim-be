@@ -1,11 +1,18 @@
 package com.dangsim.task.service;
 
 import static com.dangsim.payment.entity.PaymentStatus.*;
+import static com.dangsim.payment.entity.QPayment.payment;
 import static com.dangsim.task.entity.TaskStatus.*;
+import static com.dangsim.user.exception.UserErrorCode.USER_NOT_FOUND;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
+import com.dangsim.payment.entity.PaymentStatus;
+import com.dangsim.reward.entity.Reward;
+import com.dangsim.reward.repository.RewardRepository;
+import com.dangsim.user.repository.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -45,6 +52,9 @@ public class TaskService {
 	private final PaymentRepository paymentRepository;
 	private final ChatRoomRepository chatRoomRepository;
 	private final ChatMessageRepository chatMessageRepository;
+	private final RewardRepository rewardRepository;
+	private final UserRepository userRepository;
+
 
 	@Transactional
 	public TaskResponseDto createTask(TaskRequestDto requestDto, User user) {
@@ -96,8 +106,34 @@ public class TaskService {
 
 		validateNotAssigned(findTask);
 
+		// 작성자(요청자)의 리워드 환불
+		BigDecimal beforeReward = user.getReward();
+		BigDecimal taskReward = findTask.getReward();
+		BigDecimal afterReward = beforeReward.add(taskReward);
+
+		// 리워드 정산 기록
+		Reward rewardRecord = Reward.of(
+				beforeReward,
+				taskReward,
+				afterReward,
+				findTask,
+				user,
+				LocalDateTime.now()
+		);
+
+		// 사용자 리워드 업데이트
+		User managedUser = userRepository.findById(user.getId())
+				.orElseThrow(() -> new BaseException(USER_NOT_FOUND));
+		managedUser.updateReward(afterReward);
+
+		rewardRepository.save(rewardRecord);
+
+		// payment status 업데이트
+		Payment payment = paymentRepository.findByTaskId(findTask.getId())
+				.orElseThrow(() -> new BaseException(PaymentErrorCode.NOT_FOUND_PAYMENT));;
+		payment.updateStatus(PaymentStatus.PAYMENT_REFUNDED);
+
 		findTask.updateStatus(TASK_DELETE);
-		// TODO 소원님: Payment, PG 등등 상태 환블로 변경
 
 		return new TaskDeleteResponse(true);
 	}
