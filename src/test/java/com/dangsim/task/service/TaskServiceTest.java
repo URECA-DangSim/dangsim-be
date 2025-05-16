@@ -13,9 +13,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import com.dangsim.payment.entity.PaymentStatus;
-import com.dangsim.pg.repository.PaymentGatewayRepository;
-import com.dangsim.pg.service.PaymentGatewayService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -25,6 +22,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import com.dangsim.chat.entity.ChatRoom;
+import com.dangsim.chat.repository.ChatMessageRepository;
 import com.dangsim.chat.repository.ChatRoomRepository;
 import com.dangsim.common.exception.runtime.BaseException;
 import com.dangsim.common.fixture.ChatRoomFixture;
@@ -33,8 +31,11 @@ import com.dangsim.common.fixture.TaskFixture;
 import com.dangsim.common.fixture.UserFixture;
 import com.dangsim.common.util.DateTimeFormatUtils;
 import com.dangsim.payment.entity.Payment;
+import com.dangsim.payment.entity.PaymentStatus;
 import com.dangsim.payment.exception.PaymentErrorCode;
 import com.dangsim.payment.repository.PaymentRepository;
+import com.dangsim.pg.repository.PaymentGatewayRepository;
+import com.dangsim.pg.service.PaymentGatewayService;
 import com.dangsim.task.dto.request.TaskRequestDto;
 import com.dangsim.task.dto.response.TaskDeleteResponse;
 import com.dangsim.task.dto.response.TaskDetailsResponseDto;
@@ -64,6 +65,9 @@ public class TaskServiceTest {
 
 	@Mock
 	PaymentGatewayRepository paymentGatewayRepository;
+
+	@Mock
+	ChatMessageRepository chatMessageRepository;
 
 	@InjectMocks
 	PaymentGatewayService paymentGatewayService;
