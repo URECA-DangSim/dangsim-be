@@ -57,9 +57,9 @@ public class ChatRoomMapper {
 
 	public static boolean isCompletedTask(Task task) {
 		if (Objects.equals(task.getStatus(), TASK_COMPLETE)) {
-			return false;
+			return true;
 		}
-		return true;
+		return false;
 	}
 
 }
