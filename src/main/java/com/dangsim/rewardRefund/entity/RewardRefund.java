@@ -32,7 +32,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class RewardRefundEntity {
+public class RewardRefund {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -76,8 +76,8 @@ public class RewardRefundEntity {
 	private LocalDateTime completedAt;
 
 	@Builder(access = PRIVATE)
-	private RewardRefundEntity(User user, BigDecimal amount, String bankName, String bankAccount, String holderName,
-		RewardRefundStatus status) {
+	private RewardRefund(User user, BigDecimal amount, String bankName, String bankAccount, String holderName,
+						 RewardRefundStatus status) {
 		this.user = user;
 		this.amount = amount;
 		this.bankName = bankName;
@@ -87,9 +87,9 @@ public class RewardRefundEntity {
 		this.requestedAt = LocalDateTime.now();
 	}
 
-	public static RewardRefundEntity of(User user, BigDecimal amount, String bankName, String bankAccount,
-		String holderName, RewardRefundStatus status) {
-		return RewardRefundEntity.builder()
+	public static RewardRefund of(User user, BigDecimal amount, String bankName, String bankAccount,
+								  String holderName, RewardRefundStatus status) {
+		return RewardRefund.builder()
 			.user(user)
 			.amount(amount)
 			.bankName(bankName)
