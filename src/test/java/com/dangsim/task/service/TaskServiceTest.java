@@ -338,12 +338,11 @@ public class TaskServiceTest {
 
 		Payment payment = PaymentFixture.payment(task, requester, performer);
 		given(paymentRepository.findByMerchantUid(merchantUid)).willReturn(Optional.of(payment));
-    
-		// when
+
+    // when
 		paymentGatewayService.updatePaymentAndTaskStatus(merchantUid);
 
 		// then
-
 		assertThat(payment.getStatus()).isEqualTo(PAYMENT_SUCCESSES);
 	}
 

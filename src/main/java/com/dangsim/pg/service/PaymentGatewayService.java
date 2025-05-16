@@ -38,7 +38,6 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class PaymentGatewayService {
 
-
 	@Value("${portone.imp_key}")
 	private String apiKey;
 
