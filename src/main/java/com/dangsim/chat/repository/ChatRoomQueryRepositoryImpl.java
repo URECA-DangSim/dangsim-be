@@ -96,6 +96,7 @@ public class ChatRoomQueryRepositoryImpl implements ChatRoomQueryRepository {
 		boolean hasNext = allMessages.size() > size;
 		List<ChatMessageDetailResponse> pageMessages = subLastPage(allMessages, hasNext);
 		String nextCursor = getNextCursorByMessage(pageMessages, hasNext);
+		System.out.println("nextCursor = " + nextCursor);
 
 		ChatRoomDetailResponse detailResponse = new ChatRoomDetailResponse(chatRoomId, pageMessages);
 
@@ -136,7 +137,7 @@ public class ChatRoomQueryRepositoryImpl implements ChatRoomQueryRepository {
 		if (Objects.isNull(messages) || messages.isEmpty() || !hasNext) {
 			return null;
 		}
-		return messages.get(messages.size() - 1).timeStamp();
+		return String.valueOf(messages.get(messages.size() - 1).messageId());
 	}
 
 	private <T> List<T> subLastPage(List<T> list, boolean hasNext) {

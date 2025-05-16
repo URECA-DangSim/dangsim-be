@@ -13,9 +13,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import com.dangsim.payment.entity.PaymentStatus;
-import com.dangsim.pg.repository.PaymentGatewayRepository;
-import com.dangsim.pg.service.PaymentGatewayService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
