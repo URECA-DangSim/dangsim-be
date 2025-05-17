@@ -21,7 +21,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 	@Override
 	public void registerStompEndpoints(StompEndpointRegistry registry) {
 		registry.addEndpoint("/ws-chat") //웹소켓 연결 주소
-			.setAllowedOrigins("http://localhost:3000"); //cors 허용
+			.setAllowedOrigins("http://localhost:3000", "https://dangsim-fe.pages.dev"); //cors 허용
 		// .withSockJS();
 	}
 
